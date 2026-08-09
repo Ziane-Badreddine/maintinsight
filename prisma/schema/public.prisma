@@ -1,0 +1,179 @@
+enum EquipmentStatus {
+  GOOD
+  ACCEPTABLE
+  ALERT
+  ALARM
+  STOPPED
+  NOT_MONITORED
+}
+
+enum InspectionStatus {
+  DRAFT
+  COMPLETED
+  VALIDATED
+}
+
+enum MeasurementType {
+  VIBRATION
+  TEMPERATURE
+  ULTRASOUND
+  PRESSURE
+  SPEED
+  CURRENT
+  VOLTAGE
+  OTHER
+}
+
+// Correspond au champ "zone" des données sources (Entité / Site) :
+// ENTITY  = équipement suivi individuellement
+// SITE    = équipement mutualisé/partagé au niveau du site (ex: turbosoufflante commune)
+enum EquipmentScope {
+  ENTITY
+  SITE
+}
+
+model City {
+  id     Int     @id @default(autoincrement())
+  name   String // "Jorf Lasfar", "Safi"
+  code   String  @unique // "jorf", "safi"
+  plants Plant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cities")
+}
+
+model Plant {
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
+  name        String?
+  description String?
+
+  cityId Int
+  city   City @relation(fields: [cityId], references: [id])
+
+  workshops Workshop[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("plants")
+}
+
+model Workshop {
+  id          Int     @id @default(autoincrement())
+  name        String // SAP, PAP, DAP, PSIII, CENTRALE, "PAP-Unité-02", "SAP-Ligne D"...
+  code        String?
+  description String?
+
+  plantId Int
+  plant   Plant @relation(fields: [plantId], references: [id], onDelete: Cascade)
+
+  equipments Equipment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([plantId, name])
+  @@index([plantId])
+  @@map("workshops")
+}
+
+model EquipmentType {
+  id   Int    @id @default(autoincrement())
+  name String @unique // pompe, ventilateur, agitateur, broyeur, élévateur, convoyeur...
+
+  equipments Equipment[]
+
+  @@map("equipment_types")
+}
+
+model Equipment {
+  id          Int            @id @default(autoincrement())
+  code        String? // référence courte si dispo (ex: 401AAP02)
+  name        String // ex: "Pompe circulation bac commun 401AAP02"
+  description String?
+  scope       EquipmentScope @default(ENTITY)
+
+  workshopId Int
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  typeId Int?
+  type   EquipmentType? @relation(fields: [typeId], references: [id])
+
+  inspections InspectionEquipment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workshopId, name])
+  @@index([workshopId])
+  @@index([typeId])
+  @@map("equipments")
+}
+
+model Inspection {
+  id Int @id @default(autoincrement())
+
+  reference String? @unique // ex: campagne du "03/08"
+
+  status InspectionStatus @default(DRAFT)
+
+  inspectionDate DateTime
+
+  comment String?
+
+  performedById String
+  performedBy   User   @relation(fields: [performedById], references: [id])
+
+  equipments InspectionEquipment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([inspectionDate])
+  @@index([performedById])
+  @@map("inspections")
+}
+
+model InspectionEquipment {
+  id Int @id @default(autoincrement())
+
+  inspectionId Int
+  inspection   Inspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+
+  equipmentId Int
+  equipment   Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  status EquipmentStatus
+
+  diagnosis      String?
+  recommendation String?
+  note           String?
+
+  createdAt    DateTime      @default(now())
+  measurements Measurement[]
+
+  @@unique([inspectionId, equipmentId])
+  @@index([equipmentId])
+  @@index([status])
+  @@map("inspection_equipments")
+}
+
+model Measurement {
+  id Int @id @default(autoincrement())
+
+  inspectionEquipmentId Int
+  inspectionEquipment   InspectionEquipment @relation(fields: [inspectionEquipmentId], references: [id], onDelete: Cascade)
+
+  type  MeasurementType
+  point String // 1RV, 2RH, 3AV...
+  value Float?
+  unit  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([inspectionEquipmentId])
+  @@map("measurements")
+}
