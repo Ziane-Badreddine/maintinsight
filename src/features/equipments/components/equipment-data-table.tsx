@@ -59,8 +59,14 @@ import {
 } from "../actions/delete-equipment";
 import { exportToCsv } from "../utils/export-csv";
 import { deleteEquipments } from "../actions/delete-equipments";
+import {
+  copyTable,
+  downloadTable,
+  type TableExportFormat,
+  type TableExportColumn,
+  uniqueRows,
+} from "@/lib/table-export";
 import { BulkActionsDropdown } from "./bulk-actions-dropdown";
-import { cn } from "@/lib/utils";
 
 const STATUS_TABS = [
   { value: "ALL", label: "All" },
@@ -202,17 +208,25 @@ export function EquipmentDataTable({
     router.refresh();
   }
 
-  function handleBulkExport() {
-    exportToCsv(
-      "equipments.csv",
-      selectedRows.map((r) => ({
-        name: r.original.name,
-        code: r.original.code ?? "",
-        workshop: r.original.workshopName,
-        status: r.original.status,
-        diagnosis: r.original.diagnosis ?? "",
-      })),
-    );
+  const exportColumns: TableExportColumn<EquipmentRow>[] = [
+    { key: "name", header: "Name" },
+    { key: "code", header: "Code", format: (value) => String(value ?? "") },
+    { key: "workshopName", header: "Workshop" },
+    { key: "status", header: "Status" },
+    { key: "diagnosis", header: "Diagnosis", format: (value) => String(value ?? "") },
+  ];
+
+  function selectedEquipment() {
+    return uniqueRows(selectedRows.map((row) => row.original));
+  }
+
+  async function handleBulkCopy(format: TableExportFormat) {
+    await copyTable(selectedEquipment(), exportColumns, format);
+    toast.add({ type: "success", title: "Selected equipment copied" });
+  }
+
+  function handleBulkExport(format: TableExportFormat) {
+    downloadTable(selectedEquipment(), exportColumns, format, "equipments");
   }
 
   return (
@@ -261,6 +275,7 @@ export function EquipmentDataTable({
             <BulkActionsDropdown
               count={selectedRows.length}
               onDelete={() => setBulkDeleteOpen(true)}
+              onCopy={handleBulkCopy}
               onExport={handleBulkExport}
             />
           )}

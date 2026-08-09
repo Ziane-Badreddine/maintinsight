@@ -1,6 +1,13 @@
 "use client";
 
-import { ChevronDownIcon, Trash2Icon, DownloadIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ClipboardIcon,
+  DownloadIcon,
+  FileSpreadsheetIcon,
+  FileTextIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,12 +20,14 @@ import {
 interface BulkActionsDropdownProps {
   count: number;
   onDelete: () => void;
-  onExport: () => void;
+  onCopy: (format: "excel" | "text" | "markdown") => void;
+  onExport: (format: "excel" | "text" | "markdown") => void;
 }
 
 export function BulkActionsDropdown({
   count,
   onDelete,
+  onCopy,
   onExport,
 }: BulkActionsDropdownProps) {
   return (
@@ -32,9 +41,30 @@ export function BulkActionsDropdown({
         }
       ></DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={onExport}>
-          <DownloadIcon className="size-4" />
-          Export selected
+        <DropdownMenuItem onClick={() => onCopy("excel")}>
+          <ClipboardIcon />
+          Copy as Excel / CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onCopy("text")}>
+          <FileTextIcon />
+          Copy as text
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onCopy("markdown")}>
+          <FileTextIcon />
+          Copy as Markdown
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => onExport("excel")}>
+          <FileSpreadsheetIcon />
+          Export as Excel / CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onExport("text")}>
+          <DownloadIcon />
+          Export as text
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onExport("markdown")}>
+          <DownloadIcon />
+          Export as Markdown
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={onDelete}>
