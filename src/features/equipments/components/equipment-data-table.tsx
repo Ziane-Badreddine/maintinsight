@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useQueryState } from "nuqs";
 import { useRouter } from "next/navigation";
 import {
   useTable,
   type ColumnFiltersState,
   type ColumnVisibilityState,
-  type RowSelectionState,
+  type SortingState,
+  type PaginationState,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -17,7 +17,6 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   InputGroup,
   InputGroupAddon,
@@ -44,7 +43,6 @@ import {
 import { SearchIcon, WrenchIcon, PlusIcon } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { createEquipmentColumns, type EquipmentRow } from "./equipment-columns";
-import { WorkshopCombobox } from "./workshop-combobox";
 import { ChangeStatusDialog } from "./change-status-dialog";
 import { EquipmentFormSheet } from "./equipment-form-sheet";
 import { EquipmentStatusSummary } from "./equipment-status-summary";
@@ -53,22 +51,18 @@ import { DataTableViewOptions } from "@/features/dashboard/components/data-table
 import { features } from "@/features/dashboard/components/data-table-features";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import { authClient } from "@/lib/auth-client";
+import { deleteEquipment } from "../actions/delete-equipment";
 import {
-  deleteEquipment,
-  duplicateEquipment,
-} from "../actions/delete-equipment";
-import { exportToCsv } from "../utils/export-csv";
-import { deleteEquipments } from "../actions/delete-equipments";
-import { BulkActionsDropdown } from "./bulk-actions-dropdown";
+  DataTableAddFilterButton,
+  DataTableFilterBar,
+  type DataTableFilterConfig,
+} from "@/components/common/data-table-filter-bar";
+import { parseAsInteger, useQueryState } from "nuqs";
+import { useSidebar } from "@/components/ui/sidebar";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-const STATUS_TABS = [
-  { value: "ALL", label: "All" },
-  ...Object.entries(statusChartConfig).map(([value, cfg]) => ({
-    value,
-    label: cfg.label,
-  })),
-];
+const PAGE_SIZE = 10;
 
 interface EquipmentDataTableProps {
   data: EquipmentRow[];
@@ -82,29 +76,74 @@ export function EquipmentDataTable({
   const router = useRouter();
   const { data: session } = authClient.useSession();
 
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [workshopFilter, setWorkshopFilter] = useQueryState("workshop", {
-    defaultValue: "ALL",
-  });
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
     useState<ColumnVisibilityState>({});
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: PAGE_SIZE,
+  });
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [editingEquipment, setEditingEquipment] = useState<EquipmentRow | null>(
-    null,
+  const [editId, setEditId] = useQueryState("highlight", {
+    ...parseAsInteger,
+    shallow: false,
+  });
+  const editingEquipment = useMemo(
+    () => (editId != null ? (data.find((e) => e.id === editId) ?? null) : null),
+    [editId, data],
   );
   const [statusEquipment, setStatusEquipment] = useState<EquipmentRow | null>(
     null,
   );
-  const [viewingEquipment, setViewingEquipment] = useState<EquipmentRow | null>(
-    null,
-  );
+
   const [deletingEquipment, setDeletingEquipment] =
     useState<EquipmentRow | null>(null);
-  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // --- filter bar state ---
+  const [activeFilterIds, setActiveFilterIds] = useState<string[]>([]);
+  const { state } = useSidebar();
+
+  const equipmentFilters: DataTableFilterConfig[] = [
+    {
+      id: "workshopId",
+      label: "Workshop",
+      type: "select",
+      options: workshops.map((w) => ({ label: w.name, value: String(w.id) })),
+      placeholder: "Select workshop",
+    },
+    {
+      id: "status",
+      label: "Status",
+      type: "select",
+      options: Object.entries(statusChartConfig).map(([value, cfg]) => ({
+        label: cfg.label,
+        value,
+      })),
+      placeholder: "Select status",
+    },
+    {
+      id: "diagnosis",
+      label: "Diagnosis",
+      type: "text",
+      placeholder: "Enter diagnosis",
+    },
+    {
+      id: "lastInspectionDate",
+      label: "Last inspection",
+      type: "dateRange",
+    },
+  ];
+
+  const availableFilters = equipmentFilters.filter(
+    (f) => !activeFilterIds.includes(f.id),
+  );
+
+  function addFilter(id: string) {
+    setActiveFilterIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  }
 
   async function handleDelete() {
     if (!deletingEquipment) return;
@@ -120,38 +159,13 @@ export function EquipmentDataTable({
     router.refresh();
   }
 
-  async function handleDuplicate(equipment: EquipmentRow) {
-    const result = await duplicateEquipment(equipment.id);
-    if (result?.error) {
-      toast.add({ type: "error", title: result.error });
-      return;
-    }
-    toast.add({ type: "success", title: "Equipment duplicated" });
-    router.refresh();
-  }
-
-  function handleExportOne(equipment: EquipmentRow) {
-    exportToCsv(`${equipment.name}.csv`, [
-      {
-        name: equipment.name,
-        code: equipment.code ?? "",
-        workshop: equipment.workshopName,
-        status: equipment.status,
-        diagnosis: equipment.diagnosis ?? "",
-      },
-    ]);
-  }
-
   const columns = useMemo(
     () =>
       createEquipmentColumns({
-        onView: setViewingEquipment,
-        onEdit: setEditingEquipment,
+        onEdit: (equipment) => setEditId(equipment.id),
         onDelete: setDeletingEquipment,
-        onDuplicate: handleDuplicate,
-        onExport: handleExportOne,
       }),
-    [],
+    [setEditId],
   );
 
   const table = useTable({
@@ -160,88 +174,24 @@ export function EquipmentDataTable({
     columns,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: { columnFilters, columnVisibility, rowSelection },
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    state: { columnFilters, columnVisibility, sorting, pagination },
   });
+  const [viewAll, setViewAll] = useState(false);
 
   useEffect(() => {
-    table
-      .getColumn("workshopId")
-      ?.setFilterValue(
-        workshopFilter === "ALL" ? undefined : Number(workshopFilter),
-      );
-  }, [workshopFilter]);
-
-  function handleStatusChange(value: string) {
-    setStatusFilter(value);
-    table
-      .getColumn("status")
-      ?.setFilterValue(value === "ALL" ? undefined : value);
-  }
-
-  const counts = data.reduce<Record<string, number>>((acc, eq) => {
-    acc[eq.status] = (acc[eq.status] ?? 0) + 1;
-    return acc;
-  }, {});
+    table.setPageSize(viewAll ? data.length || 1 : 10);
+  }, [viewAll, data.length]);
 
   const rows = table.getRowModel().rows;
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-
-  async function handleBulkDelete() {
-    setIsDeleting(true);
-    const ids = selectedRows.map((r) => r.original.id);
-    const result = await deleteEquipments(ids);
-    setIsDeleting(false);
-    if (result?.error) {
-      toast.add({ type: "error", title: result.error });
-      return;
-    }
-    toast.add({ type: "success", title: `${ids.length} equipment(s) deleted` });
-    setRowSelection({});
-    setBulkDeleteOpen(false);
-    router.refresh();
-  }
-
-  function handleBulkExport() {
-    exportToCsv(
-      "equipments.csv",
-      selectedRows.map((r) => ({
-        name: r.original.name,
-        code: r.original.code ?? "",
-        workshop: r.original.workshopName,
-        status: r.original.status,
-        diagnosis: r.original.diagnosis ?? "",
-      })),
-    );
-  }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <EquipmentStatusSummary data={data} />
 
-      <div className="w-full overflow-x-auto">
-        <Tabs value={statusFilter} onValueChange={handleStatusChange}>
-          <TabsList className="w-max">
-            {STATUS_TABS.map((tab) => (
-              <TabsTrigger
-                key={tab.value}
-                value={tab.value}
-                className="shrink-0"
-              >
-                {tab.label}
-                {tab.value !== "ALL" && (
-                  <span className="ms-1.5 text-xs text-muted-foreground">
-                    {counts[tab.value] ?? 0}
-                  </span>
-                )}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-
       <div className="flex items-center gap-2 flex-wrap justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <InputGroup className="w-full md:w-64">
             <InputGroupInput
               placeholder="Search equipment…"
@@ -256,29 +206,27 @@ export function EquipmentDataTable({
               <SearchIcon />
             </InputGroupAddon>
           </InputGroup>
-
-          {selectedRows.length > 0 && (
-            <BulkActionsDropdown
-              count={selectedRows.length}
-              onDelete={() => setBulkDeleteOpen(true)}
-              onExport={handleBulkExport}
-            />
-          )}
+          <DataTableViewOptions table={table} />
+          <DataTableAddFilterButton
+            options={availableFilters}
+            onSelect={addFilter}
+          />
         </div>
 
         <div className="flex gap-2 items-center">
-          <WorkshopCombobox
-            workshops={workshops}
-            value={workshopFilter}
-            onValueChange={setWorkshopFilter}
-          />
-          <DataTableViewOptions table={table} />
           <Button onClick={() => setCreateOpen(true)}>
             <PlusIcon />
             New equipment
           </Button>
         </div>
       </div>
+
+      <DataTableFilterBar
+        table={table}
+        filters={equipmentFilters}
+        activeIds={activeFilterIds}
+        onActiveIdsChange={setActiveFilterIds}
+      />
 
       {rows.length === 0 ? (
         <Empty>
@@ -293,45 +241,57 @@ export function EquipmentDataTable({
           </EmptyHeader>
         </Empty>
       ) : (
-        <div className="overflow-hidden rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      // className={cn(`max-w-[${header.getSize()}px]!`)}
-                    >
-                      {header.isPlaceholder ? null : (
-                        <table.FlexRender header={header} />
-                      )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="group/row cursor-pointer"
-                  data-state={row.getIsSelected() ? "selected" : undefined}
-                  onClick={() => setViewingEquipment(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      // className={cn(`max-w-[${cell.column.getSize()}px]!`)}
-                    >
-                      <table.FlexRender cell={cell} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <>
+          <ScrollArea
+            className={cn(
+              "rounded-t-2xl rounded-b-xl outline-4 outline-input/30 ",
+              state === "collapsed"
+                ? "w-[calc(100svw-80px)]"
+                : "w-[calc(100svw-288px)]",
+            )}
+          >
+            <Table>
+              <TableHeader className="bg-input/30 h-12">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id} colSpan={header.colSpan}>
+                        {header.isPlaceholder ? null : (
+                          <table.FlexRender header={header} />
+                        )}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    className="cursor-pointer select-none"
+                    onDoubleClick={() => setEditId(row.original.id)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        <table.FlexRender cell={cell} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {rows.length} of {table.getFilteredRowModel().rows.length}
+            </p>
+            <Button variant="outline" onClick={() => setViewAll((v) => !v)}>
+              {viewAll ? "Show less" : "View all"}
+            </Button>
+          </div>
+        </>
       )}
 
       {/* --- forms & dialogs --- */}
@@ -339,9 +299,6 @@ export function EquipmentDataTable({
         workshops={workshops}
         open={createOpen}
         onOpenChange={setCreateOpen}
-        defaultWorkshopId={
-          workshopFilter !== "ALL" ? Number(workshopFilter) : undefined
-        }
       />
 
       {editingEquipment && (
@@ -349,7 +306,7 @@ export function EquipmentDataTable({
           workshops={workshops}
           equipment={editingEquipment}
           open={Boolean(editingEquipment)}
-          onOpenChange={(open) => !open && setEditingEquipment(null)}
+          onOpenChange={(open) => !open && setEditId(null)}
         />
       )}
 
@@ -375,28 +332,11 @@ export function EquipmentDataTable({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? "Deleting…" : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* --- delete bulk --- */}
-      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete {selectedRows.length} equipment(s)?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This will also delete their inspection history. This action cannot
-              be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleBulkDelete} disabled={isDeleting}>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              variant={"destructive"}
+            >
               {isDeleting ? "Deleting…" : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>

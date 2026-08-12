@@ -31,6 +31,9 @@ import { DataTableViewOptions } from "./data-table-view-options";
 import { features } from "./data-table-features";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const STATUS_TABS = [
   { value: "ALL", label: "All", color: "" },
@@ -52,6 +55,7 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
     useState<ColumnVisibilityState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [viewAll, setViewAll] = useState(false);
+  const { state } = useSidebar();
 
   const table = useTable({
     features,
@@ -125,13 +129,20 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
         </Empty>
       ) : (
         <>
-          <div className="overflow-hidden rounded-md border">
+          <ScrollArea
+            className={cn(
+              "rounded-t-2xl rounded-b-xl outline-4 outline-input/30",
+              state === "collapsed"
+                ? "w-[calc(100svw-80px)]"
+                : "w-[calc(100svw-288px)]",
+            )}
+          >
             <Table>
               <TableHeader className="bg-input/30 h-12">
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="whitespace-nowrap">
                         {header.isPlaceholder ? null : (
                           <table.FlexRender header={header} />
                         )}
@@ -144,7 +155,7 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
                 {rows.map((row) => (
                   <TableRow key={row.id} className="h-11">
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="whitespace-nowrap">
                         <table.FlexRender cell={cell} />
                       </TableCell>
                     ))}
@@ -152,7 +163,8 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
                 ))}
               </TableBody>
             </Table>
-          </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
 
           <div className="flex items-center justify-between mt-4">
             <p className="text-sm text-muted-foreground">

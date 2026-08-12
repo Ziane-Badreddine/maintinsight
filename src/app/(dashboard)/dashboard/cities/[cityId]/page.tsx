@@ -1,108 +1,110 @@
+// app/dashboard/cities/[cityId]/page.tsx
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { OverviewStatCards } from "@/features/global/components/overview-stat-cards";
 import {
-  PlantCard,
-  PlantsGridSkeleton,
-} from "@/features/dashboard/components/plant-card";
-import { PlantSearch } from "@/features/plant/components/plant-search";
-import { loadPlantsSearchParams } from "@/features/plant/utils/search-params";
-import { prisma } from "@/lib/prisma";
-import {
-  Empty,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  EmptyDescription,
-} from "@/components/ui/empty";
-import { FactoryIcon, PlusIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { NewPlantDialog } from "@/features/plant/components/new-plant-dialog";
+  getCityHeaderInfo,
+  getCityOverview,
+  getCityStatusHistory,
+} from "@/features/global/server/city-overview";
+import { CityHeader } from "@/features/global/components/city-header";
+import { CityHeaderSkeleton } from "@/features/global/components/city-header-skeleton";
+import { CityOverviewSkeleton } from "@/features/global/components/city-overview-skeleton";
+import { StatusSummaryCards } from "@/features/global/components/status-summary-cards";
+import { EquipmentStatusChart } from "@/features/global/components/equipment-status-pie-chart";
+import { EquipmentStatusRadarChart } from "@/features/global/components/equipment-status-radar-chart";
+import { EquipmentStatusHistoryChart } from "@/features/global/components/equipment-status-history-chart";
+import { EquipmentByWorkshopChart } from "@/features/global/components/equipment-by-workshop-chart";
+import { EquipmentByPlantChart } from "@/features/global/components/equipment-by-plant-chart";
+import { loadStatusHistorySearchParams } from "@/features/global/search-params/status-history";
+import { CitySummaryTable } from "@/features/global/components/city-summary-table";
+import { CityAttentionCards } from "@/features/global/components/city-attention-cards";
+import { CityInspectionCoverageCard } from "@/features/global/components/city-inspection-coverage-card";
+import { getCityInspectionCoverage } from "@/features/global/server/city-inspection-coverage";
 
-async function getPlants(cityId: number, search: string) {
-  return prisma.plant.findMany({
-    orderBy: { code: "asc" },
-    include: {
-      _count: { select: { workshops: true } },
-    },
-    where: {
-      cityId,
-      ...(search
-        ? {
-            OR: [
-              { name: { contains: search, mode: "insensitive" } },
-              { code: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-    },
-  });
-}
-
-interface PlantsGridProps {
-  cityId: number;
-  search: string;
-}
-
-export default async function CityPage({
+export default async function CityDashboardPage({
   params,
   searchParams,
 }: PageProps<"/dashboard/cities/[cityId]">) {
   const { cityId } = await params;
-  const { search } = await loadPlantsSearchParams(searchParams);
+  const { from, to } = await loadStatusHistorySearchParams(searchParams);
+  const id = Number(cityId);
+
+  if (Number.isNaN(id)) notFound();
 
   return (
-    <div className="p-6">
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold">Plants</h1>
-          <p className="text-muted-foreground text-sm">
-            Select a plant to access its monitoring dashboard
-          </p>
-        </div>
-        <NewPlantDialog cityId={Number(cityId)}>
-          <Button>
-            <PlusIcon className="size-4" />
-            New Plan
-          </Button>
-        </NewPlantDialog>
-      </div>
+    <div className="flex flex-col">
+      <Suspense fallback={<CityHeaderSkeleton />}>
+        <CityHeaderSection cityId={id} />
+      </Suspense>
 
-      <div className="mb-6 max-w-sm">
-        <PlantSearch />
-      </div>
-
-      <Suspense key={search} fallback={<PlantsGridSkeleton />}>
-        <PlantsGrid cityId={Number(cityId)} search={search} />
+      <Suspense fallback={<CityOverviewSkeleton />}>
+        <CityOverviewContent cityId={id} from={from} to={to} />
       </Suspense>
     </div>
   );
 }
 
-export async function PlantsGrid({ cityId, search }: PlantsGridProps) {
-  const plants = await getPlants(cityId, search);
+async function CityHeaderSection({ cityId }: { cityId: number }) {
+  const city = await getCityHeaderInfo(cityId);
 
-  if (plants.length === 0) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <FactoryIcon />
-          </EmptyMedia>
-          <EmptyTitle>No plants found</EmptyTitle>
-          <EmptyDescription>
-            {search
-              ? `No results for "${search}".`
-              : "This city has no plants yet."}
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
-  }
+  if (!city) notFound();
+
+  return <CityHeader cityId={cityId} plants={city.plants} />;
+}
+
+async function CityOverviewContent({
+  cityId,
+  from,
+  to,
+}: {
+  cityId: number;
+  from: string | null;
+  to: string | null;
+}) {
+  const hasCompleteRange = Boolean(from && to);
+
+  const [data, history, coverage] = await Promise.all([
+    getCityOverview(cityId),
+    getCityStatusHistory(cityId, {
+      from: hasCompleteRange ? new Date(from!) : undefined,
+      to: hasCompleteRange ? new Date(to!) : undefined,
+      monthsBack: 12,
+    }),
+    getCityInspectionCoverage(cityId, { staleDays: 30 }),
+  ]);
+
+  if (!data) notFound();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {plants.map((plant) => (
-        <PlantCard key={plant.id} plant={plant} />
-      ))}
+    <div className="space-y-6 px-4 py-6">
+      <OverviewStatCards cityName={data.city.name} totals={data.totals} />
+
+      <StatusSummaryCards statusCounts={data.statusCounts} />
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <EquipmentByPlantChart data={data.equipmentByPlant} />
+        <EquipmentStatusChart statusCounts={data.statusCounts} />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <CitySummaryTable rows={data.equipmentByPlant} cityId={cityId} />
+        <CityAttentionCards
+          statusCounts={data.statusCounts}
+          equipmentByPlant={data.equipmentByPlant}
+        />
+      </div>
+      <div className="grid gap-4">
+        <EquipmentStatusHistoryChart data={history} />
+      </div>
+      <div className="grid gap-4">
+        <CityInspectionCoverageCard coverage={coverage} />
+      </div>
+
+      {/* 
+      <div className="grid gap-4 lg:grid-cols-3">
+        <EquipmentStatusRadarChart statusCounts={data.statusCounts} />
+        <EquipmentByWorkshopChart data={data.equipmentByWorkshop} />
+      </div> */}
     </div>
   );
 }

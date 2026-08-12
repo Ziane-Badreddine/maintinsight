@@ -55,7 +55,7 @@ export function EquipmentFormSheet({
     Workshop | undefined
   >(() =>
     workshops.find(
-      (ws) => ws.id === (equipment?.workshopId ?? defaultWorkshopId),
+      (ws) => ws.id === (equipment?.workshop.id ?? defaultWorkshopId),
     ),
   );
 

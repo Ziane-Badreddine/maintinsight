@@ -1,22 +1,26 @@
 "use client";
 
-import { type Column } from "@tanstack/react-table";
-import { ArrowUpIcon, ArrowDownIcon, ChevronsUpDownIcon } from "lucide-react";
+import { type Column, type RowData } from "@tanstack/react-table";
+import {
+  ChevronDownIcon,
+  ChevronsUpDownIcon,
+  ChevronUpIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { DataTableFeatures } from "./data-table-features";
 
-interface DataTableColumnHeaderProps<TData> {
-  column: Column<DataTableFeatures, TData, unknown>;
+interface DataTableColumnHeaderProps<TData extends RowData, TValue = unknown> {
+  column: Column<DataTableFeatures, TData, TValue>;
   title: string;
   className?: string;
 }
 
-export function DataTableColumnHeader<TData>({
+export function DataTableColumnHeader<TData extends RowData, TValue = unknown>({
   column,
   title,
   className,
-}: DataTableColumnHeaderProps<TData>) {
+}: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return <div className={className}>{title}</div>;
   }
@@ -32,9 +36,9 @@ export function DataTableColumnHeader<TData>({
     >
       <span>{title}</span>
       {sorted === "asc" ? (
-        <ArrowUpIcon className="ml-2 size-3.5" />
+        <ChevronUpIcon className="ml-2 size-3.5" />
       ) : sorted === "desc" ? (
-        <ArrowDownIcon className="ml-2 size-3.5" />
+        <ChevronDownIcon className="ml-2 size-3.5" />
       ) : (
         <ChevronsUpDownIcon className="ml-2 size-3.5 opacity-50" />
       )}

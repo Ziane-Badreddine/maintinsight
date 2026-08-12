@@ -2,17 +2,20 @@
 
 import { createColumnHelper } from "@tanstack/react-table";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
 import type { DataTableFeatures } from "./data-table-features";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
+import { format } from "date-fns";
+import { Workshop } from "../../../../prisma/generated/prisma/client";
 
 export interface EquipmentRow {
   id: number;
   name: string;
   code: string | null;
-  workshopName: string;
+  workshop: Workshop;
   status: keyof typeof statusChartConfig;
   diagnosis: string | null;
   lastInspectionDate: Date | null;
@@ -20,36 +23,56 @@ export interface EquipmentRow {
 
 const columnHelper = createColumnHelper<DataTableFeatures, EquipmentRow>();
 
+// Builds absolute /dashboard/cities/[cityId]/plants/[plantId]/... links,
+// preserving cityId/plantId from the current route.
+export function EquipmentHighlightLink({
+  id,
+  segment,
+  children,
+}: {
+  id: number;
+  segment: "equipments" | "workshops";
+  children: React.ReactNode;
+}) {
+  const params = useParams<{ cityId: string; plantId: string }>();
+
+  return (
+    <Link
+      href={{
+        pathname: `/dashboard/cities/${params.cityId}/plants/${params.plantId}/${segment}`,
+        query: { highlight: id },
+      }}
+      className="font-medium hover:underline"
+    >
+      {children}
+    </Link>
+  );
+}
+
 export const equipmentColumns = columnHelper.columns([
   columnHelper.accessor("name", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Equipment" />
     ),
     cell: ({ row }) => (
-      <Link
-        href={`equipments/${row.original.id}`}
-        className="font-medium hover:underline"
-      >
+      <EquipmentHighlightLink id={row.original.id} segment="equipments">
         {row.original.name}
-      </Link>
+      </EquipmentHighlightLink>
     ),
     filterFn: "includesString",
-    sortingFn: "text",
+    sortFn: "text",
   }),
-  columnHelper.accessor("workshopName", {
+  columnHelper.accessor("workshop", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Workshop" />
     ),
     cell: ({ row }) => (
-      <Link
-        href={`workshops/${row.original.id}`}
-        className="font-medium hover:underline"
-      >
-        {row.original.workshopName}
-      </Link>
+      <EquipmentHighlightLink id={row.original.workshop.id} segment="workshops">
+        {row.original.workshop.name}
+      </EquipmentHighlightLink>
     ),
     enableColumnFilter: false,
-    sortingFn: "text",
+    sortFn: "text",
   }),
   columnHelper.accessor("status", {
     header: ({ column }) => (
@@ -68,7 +91,7 @@ export const equipmentColumns = columnHelper.columns([
       );
     },
     filterFn: "statusEquals",
-    sortingFn: "text",
+    sortFn: "text",
   }),
   columnHelper.accessor("diagnosis", {
     header: "Diagnosis",
@@ -87,10 +110,10 @@ export const equipmentColumns = columnHelper.columns([
     ),
     cell: ({ row }) =>
       row.original.lastInspectionDate
-        ? row.original.lastInspectionDate.toLocaleDateString()
+        ? format(row.original.lastInspectionDate, "MMMM d, yyyy")
         : "—",
     enableColumnFilter: false,
-    sortingFn: "datetime",
+    sortFn: "datetime",
     sortUndefined: "last",
   }),
 ]);

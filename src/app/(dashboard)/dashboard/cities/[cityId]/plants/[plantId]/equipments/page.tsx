@@ -43,8 +43,7 @@ async function getEquipments(plantId: number): Promise<EquipmentRow[]> {
     id: eq.id,
     name: eq.name,
     code: eq.code,
-    workshopId: eq.workshopId,
-    workshopName: eq.workshop.name,
+    workshop: eq.workshop,
     status: (eq.inspections[0]?.status ??
       "NOT_MONITORED") as EquipmentRow["status"],
     diagnosis: eq.inspections[0]?.diagnosis ?? null,

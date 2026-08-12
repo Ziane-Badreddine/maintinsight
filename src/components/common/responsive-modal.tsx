@@ -58,13 +58,39 @@ export function ResponsiveModal({
   );
 }
 
+// NOTE: We intentionally avoid the `const Comp = isDesktop ? A : B` pattern.
+// Base UI's Dialog and Drawer components are parallel APIs but not
+// structurally identical — e.g. `handle` is branded differently
+// (DialogHandle vs DrawerHandle), and `className` render-prop callbacks
+// receive different state shapes (DialogPopupState has `nestedDialogOpen`,
+// DrawerPopupState doesn't). Unifying them into one variable, or spreading
+// Dialog-typed props onto a Drawer component, trips these mismatches one
+// field at a time. Branching with explicit JSX per case, and casting the
+// whole prop bag at the boundary, treats them as the two distinct-but-
+// parallel APIs they actually are instead of pretending they're identical.
+
+type DrawerTriggerProps = React.ComponentProps<typeof DrawerTrigger>;
+type DrawerHeaderProps = React.ComponentProps<typeof DrawerHeader>;
+type DrawerTitleProps = React.ComponentProps<typeof DrawerTitle>;
+type DrawerDescriptionProps = React.ComponentProps<typeof DrawerDescription>;
+type DrawerFooterProps = React.ComponentProps<typeof DrawerFooter>;
+type DrawerCloseProps = React.ComponentProps<typeof DrawerClose>;
+
 export function ResponsiveModalTrigger({
   children,
   ...props
 }: React.ComponentProps<typeof DialogTrigger>) {
   const { isDesktop } = useResponsiveModal();
-  const Trigger = isDesktop ? DialogTrigger : DrawerTrigger;
-  return <Trigger {...props}>{children}</Trigger>;
+
+  if (isDesktop) {
+    return <DialogTrigger {...props}>{children}</DialogTrigger>;
+  }
+
+  return (
+    <DrawerTrigger {...(props as unknown as DrawerTriggerProps)}>
+      {children}
+    </DrawerTrigger>
+  );
 }
 
 export function ResponsiveModalContent({
@@ -82,7 +108,13 @@ export function ResponsiveModalContent({
     );
   }
 
-  return <DrawerContent className={className}>{children}</DrawerContent>;
+  return (
+    <DrawerContent
+      className={className as unknown as DrawerHeaderProps["className"]}
+    >
+      {children}
+    </DrawerContent>
+  );
 }
 
 export function ResponsiveModalHeader({
@@ -90,8 +122,16 @@ export function ResponsiveModalHeader({
   ...props
 }: React.ComponentProps<typeof DialogHeader>) {
   const { isDesktop } = useResponsiveModal();
-  const Header = isDesktop ? DialogHeader : DrawerHeader;
-  return <Header {...props}>{children}</Header>;
+
+  if (isDesktop) {
+    return <DialogHeader {...props}>{children}</DialogHeader>;
+  }
+
+  return (
+    <DrawerHeader {...(props as unknown as DrawerHeaderProps)}>
+      {children}
+    </DrawerHeader>
+  );
 }
 
 export function ResponsiveModalTitle({
@@ -99,8 +139,16 @@ export function ResponsiveModalTitle({
   ...props
 }: React.ComponentProps<typeof DialogTitle>) {
   const { isDesktop } = useResponsiveModal();
-  const Title = isDesktop ? DialogTitle : DrawerTitle;
-  return <Title {...props}>{children}</Title>;
+
+  if (isDesktop) {
+    return <DialogTitle {...props}>{children}</DialogTitle>;
+  }
+
+  return (
+    <DrawerTitle {...(props as unknown as DrawerTitleProps)}>
+      {children}
+    </DrawerTitle>
+  );
 }
 
 export function ResponsiveModalDescription({
@@ -108,8 +156,16 @@ export function ResponsiveModalDescription({
   ...props
 }: React.ComponentProps<typeof DialogDescription>) {
   const { isDesktop } = useResponsiveModal();
-  const Description = isDesktop ? DialogDescription : DrawerDescription;
-  return <Description {...props}>{children}</Description>;
+
+  if (isDesktop) {
+    return <DialogDescription {...props}>{children}</DialogDescription>;
+  }
+
+  return (
+    <DrawerDescription {...(props as unknown as DrawerDescriptionProps)}>
+      {children}
+    </DrawerDescription>
+  );
 }
 
 export function ResponsiveModalFooter({
@@ -117,8 +173,16 @@ export function ResponsiveModalFooter({
   ...props
 }: React.ComponentProps<typeof DialogFooter>) {
   const { isDesktop } = useResponsiveModal();
-  const Footer = isDesktop ? DialogFooter : DrawerFooter;
-  return <Footer {...props}>{children}</Footer>;
+
+  if (isDesktop) {
+    return <DialogFooter {...props}>{children}</DialogFooter>;
+  }
+
+  return (
+    <DrawerFooter {...(props as unknown as DrawerFooterProps)}>
+      {children}
+    </DrawerFooter>
+  );
 }
 
 export function ResponsiveModalClose({
@@ -126,6 +190,14 @@ export function ResponsiveModalClose({
   ...props
 }: React.ComponentProps<typeof DialogClose>) {
   const { isDesktop } = useResponsiveModal();
-  const Close = isDesktop ? DialogClose : DrawerClose;
-  return <Close {...props}>{children}</Close>;
+
+  if (isDesktop) {
+    return <DialogClose {...props}>{children}</DialogClose>;
+  }
+
+  return (
+    <DrawerClose {...(props as unknown as DrawerCloseProps)}>
+      {children}
+    </DrawerClose>
+  );
 }

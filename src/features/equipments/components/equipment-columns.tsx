@@ -7,28 +7,40 @@ import {
   Trash2Icon,
   CopyIcon,
   DownloadIcon,
-  EyeIcon,
-  Maximize2,
+  FileJson2Icon,
+  FileTextIcon,
+  Table2Icon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/toast";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import type { DataTableFeatures } from "@/features/dashboard/components/data-table-features";
+import {
+  createDateRangeFilterFn,
+  createEqualsFilterFn,
+} from "@/components/common/data-table-filter-fns";
+import { format } from "date-fns";
+import { DataTableColumnHeader } from "@/features/dashboard/components/data-table-column-header";
+import { Workshop } from "../../../../prisma/generated/prisma/client";
+import { EquipmentHighlightLink } from "@/features/dashboard/components/equipment-columns";
 
 export interface EquipmentRow {
   id: number;
   name: string;
   code: string | null;
-  workshopId: number;
-  workshopName: string;
+  workshop: Workshop;
   status: keyof typeof statusChartConfig;
   diagnosis: string | null;
   lastInspectionDate: Date | null;
@@ -36,54 +48,99 @@ export interface EquipmentRow {
 
 const columnHelper = createColumnHelper<DataTableFeatures, EquipmentRow>();
 
+// --- format helpers ---
+
+function formatAsRawText(e: EquipmentRow) {
+  return [
+    `Equipment: ${e.name}`,
+    `Code: ${e.code ?? "—"}`,
+    `Workshop: ${e.workshop.name}`,
+    `Status: ${statusChartConfig[e.status]?.label ?? e.status}`,
+    `Diagnosis: ${e.diagnosis ?? "—"}`,
+    `Last inspection: ${
+      e.lastInspectionDate ? e.lastInspectionDate.toLocaleDateString() : "—"
+    }`,
+  ].join("\n");
+}
+
+function formatAsJson(e: EquipmentRow) {
+  return JSON.stringify(e, null, 2);
+}
+
+// Tab-separated so pasting directly into Excel/Google Sheets lands as columns
+function formatAsTsv(e: EquipmentRow) {
+  const headers = [
+    "Name",
+    "Code",
+    "Workshop",
+    "Status",
+    "Diagnosis",
+    "Last inspection",
+  ];
+  const values = [
+    e.name,
+    e.code ?? "",
+    e.workshop.name,
+    statusChartConfig[e.status]?.label ?? e.status,
+    e.diagnosis ?? "",
+    e.lastInspectionDate ? e.lastInspectionDate.toLocaleDateString() : "",
+  ];
+  return `${headers.join("\t")}\n${values.join("\t")}`;
+}
+
+// --- clipboard ---
+
+async function copyToClipboard(text: string, label: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.add({ type: "success", title: `${label} copied to clipboard` });
+  } catch {
+    toast.add({ type: "error", title: "Failed to copy to clipboard" });
+  }
+}
+
+// --- file download ---
+
+function downloadFile(filename: string, content: string, mime: string) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function exportEquipment(e: EquipmentRow, format: "excel" | "text" | "json") {
+  const base = e.name.replace(/\s+/g, "_").toLowerCase();
+
+  if (format === "excel") {
+    downloadFile(`${base}.csv`, formatAsTsv(e).replace(/\t/g, ","), "text/csv");
+  } else if (format === "text") {
+    downloadFile(`${base}.txt`, formatAsRawText(e), "text/plain");
+  } else {
+    downloadFile(`${base}.json`, formatAsJson(e), "application/json");
+  }
+
+  toast.add({ type: "success", title: "Equipment exported" });
+}
+
 interface CreateEquipmentColumnsOptions {
-  onView: (equipment: EquipmentRow) => void;
   onEdit: (equipment: EquipmentRow) => void;
   onDelete: (equipment: EquipmentRow) => void;
-  onDuplicate: (equipment: EquipmentRow) => void;
-  onExport: (equipment: EquipmentRow) => void;
 }
 
 export function createEquipmentColumns({
-  onView,
   onEdit,
   onDelete,
-  onDuplicate,
-  onExport,
 }: CreateEquipmentColumnsOptions) {
   return columnHelper.columns([
-    // --- select + expand (même cellule) ---
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected()
-              ? true
-              : table.getIsSomePageRowsSelected()
-                ? "indeterminate"
-                : false
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          onClick={(e) => e.stopPropagation()}
-          aria-label="Select row"
-          className="translate-y-[2px]"
-        />
-      ),
-      enableHiding: false,
-      size: 65,
-      maxSize: 65,
-    }),
-
     columnHelper.accessor("name", {
-      header: "Equipment",
+      header: ({ column }) => (
+        <DataTableColumnHeader title="Equipment" column={column} />
+      ),
       cell: ({ row }) => (
         <div>
           <div className="font-medium">{row.original.name}</div>
@@ -95,14 +152,28 @@ export function createEquipmentColumns({
         </div>
       ),
       filterFn: "includesString",
+      sortFn: "text",
     }),
-    columnHelper.accessor("workshopId", {
-      header: "Workshop",
-      cell: ({ row }) => row.original.workshopName,
-      filterFn: "statusEquals",
+    columnHelper.accessor("workshop", {
+      header: ({ column }) => (
+        <DataTableColumnHeader title="Workshop" column={column} />
+      ),
+      cell: ({ row }) => (
+        <EquipmentHighlightLink
+          id={row.original.workshop.id}
+          segment="workshops"
+        >
+          {row.original.workshop.name}
+        </EquipmentHighlightLink>
+      ),
+      filterFn: createEqualsFilterFn<DataTableFeatures, EquipmentRow>(),
+      sortFn: (a, b) =>
+        a.original.workshop.name.localeCompare(b.original.workshop.name),
     }),
     columnHelper.accessor("status", {
-      header: "Status",
+      header: ({ column }) => (
+        <DataTableColumnHeader title="Status" column={column} />
+      ),
       cell: ({ row }) => {
         const status = row.original.status;
         const config = statusChartConfig[status];
@@ -115,7 +186,7 @@ export function createEquipmentColumns({
           </Badge>
         );
       },
-      filterFn: "statusEquals",
+      filterFn: createEqualsFilterFn<DataTableFeatures, EquipmentRow>(),
     }),
     columnHelper.accessor("diagnosis", {
       header: "Diagnosis",
@@ -124,60 +195,142 @@ export function createEquipmentColumns({
           {row.original.diagnosis ?? "—"}
         </span>
       ),
-      enableColumnFilter: false,
+      filterFn: "includesString",
+      enableSorting: false,
     }),
     columnHelper.accessor("lastInspectionDate", {
-      header: "Last inspection",
+      header: ({ column }) => (
+        <DataTableColumnHeader title="Last inspection" column={column} />
+      ),
       cell: ({ row }) =>
         row.original.lastInspectionDate
-          ? row.original.lastInspectionDate.toLocaleDateString()
+          ? format(row.original.lastInspectionDate, "MMMM d, yyyy")
           : "—",
-      enableColumnFilter: false,
+      filterFn: createDateRangeFilterFn<DataTableFeatures, EquipmentRow>(),
+      sortFn: "datetime",
     }),
 
     // --- actions dropdown (par ligne) ---
     columnHelper.display({
       id: "actions",
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-8 data-[state=open]:bg-muted"
+      cell: ({ row }) => {
+        const equipment = row.original;
+
+        return (
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 data-[state=open]:bg-muted"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventBaseUIHandler();
+                      e.preventDefault();
+                    }}
+                  >
+                    <MoreHorizontalIcon className="size-4" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                }
+              ></DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
                 onClick={(e) => e.stopPropagation()}
               >
-                <MoreHorizontalIcon className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            }
-          ></DropdownMenuTrigger>
-          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-            <DropdownMenuItem onClick={() => onEdit(row.original)}>
-              <PencilIcon className="size-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDuplicate(row.original)}>
-              <CopyIcon className="size-4" />
-              Copy
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onExport(row.original)}>
-              <DownloadIcon className="size-4" />
-              Export
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={() => onDelete(row.original)}
-            >
-              <Trash2Icon className="size-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+                <DropdownMenuItem onClick={() => onEdit(equipment)}>
+                  <PencilIcon className="size-4" />
+                  Edit
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                {/* --- copy (clipboard only, no DB write) --- */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <CopyIcon className="size-4" />
+                    Copy
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          copyToClipboard(formatAsTsv(equipment), "Excel row")
+                        }
+                      >
+                        <Table2Icon className="size-4" />
+                        As Excel row
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          copyToClipboard(
+                            formatAsRawText(equipment),
+                            "Raw text",
+                          )
+                        }
+                      >
+                        <FileTextIcon className="size-4" />
+                        As raw text
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          copyToClipboard(formatAsJson(equipment), "JSON")
+                        }
+                      >
+                        <FileJson2Icon className="size-4" />
+                        As JSON
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                {/* --- export (file download) --- */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <DownloadIcon className="size-4" />
+                    Export
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem
+                        onClick={() => exportEquipment(equipment, "excel")}
+                      >
+                        <Table2Icon className="size-4" />
+                        To Excel (.csv)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => exportEquipment(equipment, "text")}
+                      >
+                        <FileTextIcon className="size-4" />
+                        As raw text
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => exportEquipment(equipment, "json")}
+                      >
+                        <FileJson2Icon className="size-4" />
+                        As JSON
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => onDelete(equipment)}
+                >
+                  <Trash2Icon className="size-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
       enableHiding: false,
+      enableSorting: false,
       size: 48,
     }),
   ]);

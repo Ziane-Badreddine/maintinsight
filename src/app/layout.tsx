@@ -42,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       )}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col ">
         <NextTopLoader
           color="var(--primary)"
           crawlSpeed={200}
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           speed={200}
           shadow="0 0 10px var(--primary), 0 0 5px var(--primary)"
         />
-        <NuqsAdapter defaultOptions={{ scroll: true }}>
+        <NuqsAdapter defaultOptions={{ scroll: false }}>
           <Suspense>
             <QueryProvider>
               <ThemeProvider

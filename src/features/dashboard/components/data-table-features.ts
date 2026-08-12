@@ -1,6 +1,7 @@
 import {
   columnFilteringFeature,
   columnVisibilityFeature,
+  columnOrderingFeature,
   createFilteredRowModel,
   createPaginatedRowModel,
   createSortedRowModel,
@@ -12,13 +13,13 @@ import {
   sortFn_text,
   tableFeatures,
   type Row,
+  type RowData, // <-- add this import
   rowSelectionFeature,
   columnSizingFeature,
   columnResizingFeature,
 } from "@tanstack/react-table";
 
-// Custom filter: exact match on status, "ALL" (ou vide) = pas de filtre
-function filterFn_statusEquals<TFeatures extends object, TData>(
+function filterFn_statusEquals<TFeatures extends object, TData extends RowData>(
   row: Row<TFeatures, TData>,
   columnId: string,
   filterValue: unknown,
@@ -30,6 +31,7 @@ function filterFn_statusEquals<TFeatures extends object, TData>(
 export const features = tableFeatures({
   columnFilteringFeature,
   columnVisibilityFeature,
+  columnOrderingFeature,
   columnSizingFeature,
   columnResizingFeature,
   rowPaginationFeature,

@@ -20,7 +20,7 @@ export function StatCards({ total, healthRate, statusCounts }: StatCardsProps) {
 
   const items = [
     {
-      label: "Total equipments",
+      label: "Total equipment",
       value: total,
       icon: BoxesIcon,
       tone: "text-foreground",
