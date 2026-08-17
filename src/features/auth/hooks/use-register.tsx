@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { registerSchema, RegisterSchema } from "../schemas/register-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,8 +16,6 @@ export function useRegister() {
   });
 
   const router = useRouter();
-
-  const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(values: RegisterSchema) {
     await authClient.signUp.email({

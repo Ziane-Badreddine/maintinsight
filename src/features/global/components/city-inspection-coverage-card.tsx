@@ -9,9 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+} from "@/components/ui/empty";
+import { CheckCircle2 } from "lucide-react";
 
 import type { CityInspectionCoverage } from "@/features/global/server/city-inspection-coverage";
 import { STATUS_CONFIG } from "../constants/equipment-status";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 function pct(count: number, total: number) {
   if (total === 0) return 0;
@@ -66,60 +75,79 @@ export function CityInspectionCoverageCard({
         />
       </div>
 
-      {/* Attention table */}
-      {attentionList.length > 0 ? (
-        <div className="rounded-md border">
+      <div className="flex flex-col gap-4">
+        <ScrollArea
+          className={cn(
+            "rounded-t-2xl rounded-b-xl outline-4 outline-input/30 w-[calc(100svw-46px)]",
+          )}
+        >
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-input/30 h-12">
               <TableRow>
                 <TableHead>Equipment</TableHead>
-
                 <TableHead>Site / Workshop</TableHead>
-
                 <TableHead className="text-right">Last inspection</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {attentionList.map((row) => (
-                <TableRow key={row.equipmentId}>
-                  <TableCell className="font-medium">
-                    {row.equipmentName}
+              {attentionList.length > 0 &&
+                attentionList.map((row) => (
+                  <TableRow key={row.equipmentId}>
+                    <TableCell className="font-medium">
+                      {row.equipmentName}
 
-                    {row.equipmentCode ? (
-                      <span className="ml-1.5 text-xs text-muted-foreground">
-                        {row.equipmentCode}
-                      </span>
-                    ) : null}
-                  </TableCell>
+                      {row.equipmentCode ? (
+                        <span className="ml-1.5 text-xs text-muted-foreground">
+                          {row.equipmentCode}
+                        </span>
+                      ) : null}
+                    </TableCell>
 
-                  <TableCell className="text-muted-foreground">
-                    {row.plantName} · {row.workshopName}
-                  </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {row.plantName} · {row.workshopName}
+                    </TableCell>
 
-                  <TableCell className="text-right">
-                    {row.lastInspectionDate ? (
-                      <Badge
-                        variant="outline"
-                        className="border-amber-500/40 text-amber-600 dark:text-amber-400"
-                      >
-                        {row.daysSinceLastInspection}d ago
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant="outline"
-                        className="border-red-500/40 text-red-600 dark:text-red-400"
-                      >
-                        Never
-                      </Badge>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell className="text-right">
+                      {row.lastInspectionDate ? (
+                        <Badge
+                          variant="outline"
+                          className="border-amber-500/40 text-amber-600 dark:text-amber-400"
+                        >
+                          {row.daysSinceLastInspection}d ago
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="border-red-500/40 text-red-600 dark:text-red-400"
+                        >
+                          Never
+                        </Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
-        </div>
-      ) : null}
+
+          {attentionList.length === 0 && (
+            <Empty className="border-0 rounded-none bg-background">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <CheckCircle2 />
+                </EmptyMedia>
+                <EmptyTitle>All equipment is up to date</EmptyTitle>
+                <EmptyDescription>
+                  No equipment needs attention — everything has been inspected
+                  within the last {staleDays} days.
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
+
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
     </div>
   );
 }

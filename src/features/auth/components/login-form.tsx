@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,24 +11,45 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 import Link from "next/link";
 import { Route } from "next";
-import { toast } from "@/components/ui/toast";
-import { loginSchema, LoginSchema } from "../schemas/login-schema";
+
 import { Spinner } from "@/components/ui/spinner";
-import { GalleryVerticalEnd } from "lucide-react";
+import { Fingerprint, GalleryVerticalEnd } from "lucide-react";
 import { useLogin } from "../hooks/use-login";
+import { Controller } from "react-hook-form";
+import { authClient } from "@/lib/auth-client";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
   const { form, onSubmit, isSubmitting } = useLogin();
+  const router = useRouter();
+
+  const { isPending, mutate } = useMutation({
+    mutationFn: async (options?: { autoFill?: boolean }) => {
+      await authClient.signIn.passkey({
+        autoFill: options?.autoFill ?? false,
+      });
+    },
+    onSuccess: () => {
+      router.push("/dashboard");
+    },
+    onError: (error) => {
+      toast.add({
+        type: "error",
+        title: "Passkey sign-in failed",
+        description: error.message ?? "Please try again",
+      });
+    },
+  });
+  const lastMethod = authClient.getLastUsedLoginMethod();
+  console.log(lastMethod);
 
   return (
     <form
@@ -64,7 +87,7 @@ export function LoginForm({
                 type="email"
                 aria-invalid={fieldState.invalid}
                 placeholder="m@example.com"
-                autoComplete="off"
+                autoComplete="username webauthn"
                 className="bg-background"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -91,6 +114,7 @@ export function LoginForm({
                 id="password"
                 aria-invalid={fieldState.invalid}
                 type="password"
+                autoComplete="current-password webauthn"
                 className="bg-background"
                 placeholder="*********"
               />
@@ -103,6 +127,19 @@ export function LoginForm({
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Spinner />}
             Login
+          </Button>
+        </Field>
+        <FieldSeparator>Or</FieldSeparator>
+        <Field>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => mutate({})}
+            disabled={isPending}
+          >
+            {isPending ? <Spinner /> : <Fingerprint className="size-4" />}
+            Sign in with a passkey
           </Button>
         </Field>
       </FieldGroup>

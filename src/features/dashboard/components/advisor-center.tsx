@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { LightbulbIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
@@ -95,7 +96,8 @@ export function AdvisorCenter({ plantId }: AdvisorCenterProps) {
             </SheetDescription>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto px-4">
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="px-4 pb-4">
             {isPending ? (
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
@@ -154,7 +156,8 @@ export function AdvisorCenter({ plantId }: AdvisorCenterProps) {
                 })}
               </div>
             )}
-          </div>
+            </div>
+          </ScrollArea>
         </SheetContent>
       </Sheet>
     </>

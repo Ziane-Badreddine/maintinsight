@@ -358,14 +358,6 @@ export type CityScalarRelationFilter = {
   isNot?: Prisma.CityWhereInput
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type CityCreateNestedOneWithoutPlantsInput = {
   create?: Prisma.XOR<Prisma.CityCreateWithoutPlantsInput, Prisma.CityUncheckedCreateWithoutPlantsInput>
   connectOrCreate?: Prisma.CityCreateOrConnectWithoutPlantsInput

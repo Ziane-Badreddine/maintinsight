@@ -102,7 +102,7 @@ export function EquipmentStatusHistoryChart({
             <YAxis hide />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
+              content={<ChartTooltipContent indicator="line" />}
             />
             {STATUS_DISPLAY_ORDER.map((status) => (
               <Area

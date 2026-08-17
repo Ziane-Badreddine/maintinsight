@@ -1,7 +1,20 @@
 import { createAuthClient } from "better-auth/react";
 import { adminClient } from "better-auth/client/plugins";
+import { passkeyClient } from "@better-auth/passkey/client";
+import { lastLoginMethodClient } from "better-auth/client/plugins";
 
-import { ac, admin, manager, inspector, viewer } from "./permissions";
+import {
+  ac,
+  admin,
+  manager,
+  inspector,
+  viewer,
+  statements,
+} from "./permissions";
+
+export type PermissionCheck = {
+  [K in keyof typeof statements]?: (typeof statements)[K][number][];
+};
 
 export const authClient = createAuthClient({
   plugins: [
@@ -14,5 +27,19 @@ export const authClient = createAuthClient({
         viewer,
       },
     }),
+    passkeyClient(),
+    lastLoginMethodClient(),
   ],
 });
+
+export function roleHasPermission(
+  role: string | null | undefined,
+  permissions: PermissionCheck,
+) {
+  if (!role) return false;
+
+  return authClient.admin.checkRolePermission({
+    role: role as "admin" | "manager" | "inspector" | "viewer",
+    permissions,
+  });
+}

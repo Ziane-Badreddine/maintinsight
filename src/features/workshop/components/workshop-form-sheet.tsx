@@ -12,6 +12,7 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -75,12 +76,13 @@ export function WorkshopFormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <form
-          id="form-create-edit-workshop"
-          key={workshop?.id ?? "new"}
-          action={handleSubmit}
-          className="flex flex-col gap-4 px-4 flex-1"
-        >
+        <ScrollArea className="flex-1 min-h-0">
+          <form
+            id="form-create-edit-workshop"
+            key={workshop?.id ?? "new"}
+            action={handleSubmit}
+            className="flex flex-col gap-4 px-4 pb-4"
+          >
           <div className="space-y-1.5">
             <Label htmlFor="name">Name</Label>
             <Input
@@ -112,9 +114,8 @@ export function WorkshopFormSheet({
               rows={3}
             />
           </div>
-
-          <div className="flex-1" />
-        </form>
+          </form>
+        </ScrollArea>
         <SheetFooter className="flex-row gap-2 pb-4 ">
           <div className=" flex gap-2 ml-auto">
             <Button

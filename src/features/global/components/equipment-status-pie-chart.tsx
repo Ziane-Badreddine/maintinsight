@@ -58,7 +58,13 @@ export function EquipmentStatusChart({
         >
           <PieChart>
             <ChartTooltip
-              content={<ChartTooltipContent nameKey="label" hideLabel />}
+              content={
+                <ChartTooltipContent
+                  indicator="line"
+                  nameKey="label"
+                  hideLabel
+                />
+              }
             />
             <Pie
               data={data}

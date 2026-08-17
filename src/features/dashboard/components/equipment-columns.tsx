@@ -49,15 +49,38 @@ export function EquipmentHighlightLink({
   );
 }
 
+export function EquipmentLink({
+  id,
+  segment,
+  children,
+}: {
+  id: number;
+  segment: "equipments" | "workshops";
+  children: React.ReactNode;
+}) {
+  const params = useParams<{ cityId: string; plantId: string }>();
+
+  return (
+    <Link
+      href={{
+        pathname: `/dashboard/cities/${params.cityId}/plants/${params.plantId}/${segment}/${id}`,
+      }}
+      className="font-medium hover:underline"
+    >
+      {children}
+    </Link>
+  );
+}
+
 export const equipmentColumns = columnHelper.columns([
   columnHelper.accessor("name", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Equipment" />
     ),
     cell: ({ row }) => (
-      <EquipmentHighlightLink id={row.original.id} segment="equipments">
+      <EquipmentLink id={row.original.id} segment="equipments">
         {row.original.name}
-      </EquipmentHighlightLink>
+      </EquipmentLink>
     ),
     filterFn: "includesString",
     sortFn: "text",

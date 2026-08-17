@@ -12,6 +12,7 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -96,12 +97,13 @@ export function EquipmentFormSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <form
-          key={equipment?.id ?? "new"}
-          action={handleSubmit}
-          id="form-create-edit-equipment"
-          className="flex flex-col gap-4 px-4 flex-1"
-        >
+        <ScrollArea className="flex-1 min-h-0">
+          <form
+            key={equipment?.id ?? "new"}
+            action={handleSubmit}
+            id="form-create-edit-equipment"
+            className="flex flex-col gap-4 px-4 pb-4"
+          >
           <div className="space-y-1.5">
             <Label htmlFor="name">Name</Label>
             <Input
@@ -169,9 +171,8 @@ export function EquipmentFormSheet({
               </ComboboxContent>
             </Combobox>
           </div>
-
-          <div className="flex-1" />
-        </form>
+          </form>
+        </ScrollArea>
         <SheetFooter className="flex-row gap-2  pb-4">
           <div className=" flex gap-2 ml-auto">
             <Button

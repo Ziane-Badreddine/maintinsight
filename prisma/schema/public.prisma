@@ -132,7 +132,6 @@ model Inspection {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([inspectionDate])
   @@index([performedById])
   @@map("inspections")
 }

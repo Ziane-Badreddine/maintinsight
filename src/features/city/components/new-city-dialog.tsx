@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   ResponsiveModal,
   ResponsiveModalContent,
@@ -23,14 +22,13 @@ interface NewCityDialogProps {
 export function NewCityDialog({ children }: NewCityDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(createCity, {});
-  const router = useRouter();
 
   useEffect(() => {
     if (state.success) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpen(false);
-      router.refresh();
     }
-  }, [state.success, router]);
+  }, [state.success]);
   return (
     <ResponsiveModal open={open} onOpenChange={setOpen}>
       <div onClick={() => setOpen(true)}>{children}</div>

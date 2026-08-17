@@ -29,7 +29,7 @@ export async function GET(
       inspectionDate: eq.inspections[0]?.inspection.inspectionDate ?? null,
     }))
     .filter((eq) => eq.status === "ALARM" || eq.status === "ALERT")
-    .sort((a, b) => (a.status === "ALARM" ? -1 : 1));
+    .sort((a) => (a.status === "ALARM" ? -1 : 1));
 
   return NextResponse.json(critical);
 }

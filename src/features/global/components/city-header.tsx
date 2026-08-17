@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { SearchIcon, Slash } from "lucide-react";
+import { SearchIcon, Slash, SquareMousePointer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import UserAvatar from "@/components/common/user-avatar";
 import { RefreshButton } from "@/features/dashboard/components/refresh-button";
-import { AdvisorCenter } from "@/features/dashboard/components/advisor-center";
 import { CitySwitcherHeader } from "@/features/city/components/city-switcher";
 import { Logo } from "@/features/dashboard/components/logo";
 
@@ -16,6 +15,9 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDashboardLayoutStore } from "@/features/global/stores/dashboard-layout-store";
+import { EditModeToolbar } from "./edit-mode-toolbar";
+import { CreateInspectionButton } from "@/features/inspection/components/create-inspection-button";
 
 interface CityHeaderProps {
   cityId: number;
@@ -25,6 +27,11 @@ interface CityHeaderProps {
 export function CityHeader({ cityId, plants }: CityHeaderProps) {
   const hasCityContext = Boolean(cityId);
   const isMobile = useIsMobile();
+
+  const isEditMode = useDashboardLayoutStore((s) => s.isEditMode);
+  const hasHydrated = useDashboardLayoutStore((s) => s.hasHydrated);
+  const toggleEditMode = useDashboardLayoutStore((s) => s.toggleEditMode);
+
   return (
     <>
       <header className="flex h-[64.8px] border-b shrink-0 items-center justify-between gap-2 z-10 w-full px-4">
@@ -39,7 +46,8 @@ export function CityHeader({ cityId, plants }: CityHeaderProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <CreateInspectionButton />
           <Button
             variant="ghost"
             size="icon-sm"
@@ -48,6 +56,17 @@ export function CityHeader({ cityId, plants }: CityHeaderProps) {
           >
             <SearchIcon className="size-4" />
           </Button>
+
+          <Button
+            variant={hasHydrated && isEditMode ? "secondary" : "ghost"}
+            size="icon-sm"
+            disabled={!hasHydrated || isEditMode}
+            onClick={toggleEditMode}
+            title="Customize dashboard"
+          >
+            <SquareMousePointer className="size-4" />
+          </Button>
+
           {/* <AdvisorCenter
             plantId={params.plantId ? Number(params.plantId) : undefined}
           /> */}
@@ -80,6 +99,8 @@ export function CityHeader({ cityId, plants }: CityHeaderProps) {
           </CarouselContent>
         </Carousel>
       )}
+
+      <EditModeToolbar />
     </>
   );
 }

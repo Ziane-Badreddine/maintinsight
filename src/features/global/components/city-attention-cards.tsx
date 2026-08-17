@@ -1,5 +1,3 @@
-// components/dashboard/city-attention-cards.tsx
-import { AlertTriangle, Ban, CircleX, EyeOff } from "lucide-react";
 import {
   Card,
   CardContent,

@@ -69,6 +69,7 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
 
   useEffect(() => {
     table.setPageSize(viewAll ? data.length || 1 : 10);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewAll, data.length]);
 
   function handleStatusChange(value: string) {
@@ -89,7 +90,7 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
     <>
       <div className="flex items-center justify-between gap-4">
         <Tabs value={statusFilter} onValueChange={handleStatusChange}>
-          <TabsList>
+          <TabsList variant={"line"}>
             {STATUS_TABS.map((tab) => (
               <TabsTrigger
                 key={tab.value}

@@ -156,6 +156,7 @@ export function WorkshopsDataTable({ data, plantId }: WorkshopsDataTableProps) {
 
   useEffect(() => {
     table.setPageSize(viewAll ? data.length || 1 : 10);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewAll, data.length]);
 
   const rows = table.getRowModel().rows;

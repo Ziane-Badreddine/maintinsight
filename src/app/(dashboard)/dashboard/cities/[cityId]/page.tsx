@@ -1,59 +1,429 @@
-// app/dashboard/cities/[cityId]/page.tsx
-import { Suspense } from "react";
+import { cache, Suspense } from "react";
 import { notFound } from "next/navigation";
-import { OverviewStatCards } from "@/features/global/components/overview-stat-cards";
+
+import { MeasurementType } from "../../../../../../prisma/generated/prisma/enums";
+
 import {
   getCityHeaderInfo,
   getCityOverview,
   getCityStatusHistory,
+  getPlantsOverview,
+  getWorkshopsOverview,
 } from "@/features/global/server/city-overview";
+
+import { getCityInspectionCoverage } from "@/features/global/server/city-inspection-coverage";
+
+import {
+  getMeasurementTrend,
+  getMeasurementTypeBreakdown,
+} from "@/features/global/server/city-measurements";
+
+import { getEquipmentStatusOverview } from "@/features/global/server/equipment-status-overview";
+
+import { loadStatusHistorySearchParams } from "@/features/global/search-params/status-history";
+import { loadMeasurementTrendSearchParams } from "@/features/global/search-params/measurement-trend";
+import { loadEquipmentStatusOverviewSearchParams } from "@/features/global/search-params/equipment-status-overview";
+
+import { DashboardGrid } from "@/features/global/components/dashboard-grid";
+
 import { CityHeader } from "@/features/global/components/city-header";
 import { CityHeaderSkeleton } from "@/features/global/components/city-header-skeleton";
-import { CityOverviewSkeleton } from "@/features/global/components/city-overview-skeleton";
+
+import { OverviewStatCards } from "@/features/global/components/overview-stat-cards";
 import { StatusSummaryCards } from "@/features/global/components/status-summary-cards";
 import { EquipmentStatusChart } from "@/features/global/components/equipment-status-pie-chart";
-import { EquipmentStatusRadarChart } from "@/features/global/components/equipment-status-radar-chart";
 import { EquipmentStatusHistoryChart } from "@/features/global/components/equipment-status-history-chart";
-import { EquipmentByWorkshopChart } from "@/features/global/components/equipment-by-workshop-chart";
 import { EquipmentByPlantChart } from "@/features/global/components/equipment-by-plant-chart";
-import { loadStatusHistorySearchParams } from "@/features/global/search-params/status-history";
 import { CitySummaryTable } from "@/features/global/components/city-summary-table";
 import { CityAttentionCards } from "@/features/global/components/city-attention-cards";
 import { CityInspectionCoverageCard } from "@/features/global/components/city-inspection-coverage-card";
-import { getCityInspectionCoverage } from "@/features/global/server/city-inspection-coverage";
+import { MeasurementTypeBreakdownChart } from "@/features/global/components/measurement-type-breakdown-chart";
+import { MeasurementTrendChart } from "@/features/global/components/measurement-trend-chart";
+import { EquipmentDataTable } from "@/features/global/components/equipment-data-table";
+import { PlantsOverviewTable } from "@/features/global/components/plants-overview-table";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import { WorkshopsOverviewTable } from "@/features/global/components/workshops-overview-table";
+import { loadWorkshopsOverviewSearchParams } from "@/features/global/search-params/workshops-overview";
+
+/* -------------------------------------------------------------------------- */
+/*                                  CACHING                                   */
+/* -------------------------------------------------------------------------- */
+
+const getCityOverviewCached = cache(async (cityId: number) =>
+  getCityOverview(cityId),
+);
+
+/* -------------------------------------------------------------------------- */
+/*                                  SKELETONS                                 */
+/* -------------------------------------------------------------------------- */
+
+function StatCardsSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Skeleton key={index} className="h-28 rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+function StatusSummarySkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <Skeleton key={index} className="h-24 rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+function ChartSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-64 w-full rounded-xl" />
+    </div>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-48 w-full rounded-xl" />
+    </div>
+  );
+}
+
+function AttentionCardsSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <Skeleton key={index} className="h-20 w-full rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton className="h-6 w-48" />
+        <Skeleton className="h-9 w-24" />
+      </div>
+
+      <div className="rounded-xl border">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 border-b p-4 last:border-b-0"
+          >
+            <Skeleton className="h-5 w-5" />
+            <Skeleton className="h-5 flex-1" />
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-20" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              PAGE COMPONENT                                */
+/* -------------------------------------------------------------------------- */
 
 export default async function CityDashboardPage({
   params,
   searchParams,
 }: PageProps<"/dashboard/cities/[cityId]">) {
   const { cityId } = await params;
-  const { from, to } = await loadStatusHistorySearchParams(searchParams);
+  const [
+    { from, to },
+    { measurementType },
+    { equipmentPlantId },
+    { workshopPlantId },
+  ] = await Promise.all([
+    loadStatusHistorySearchParams(searchParams),
+    loadMeasurementTrendSearchParams(searchParams),
+    loadEquipmentStatusOverviewSearchParams(searchParams),
+    loadWorkshopsOverviewSearchParams(searchParams), // ← ajouté
+  ]);
+
   const id = Number(cityId);
 
-  if (Number.isNaN(id)) notFound();
+  if (!Number.isInteger(id) || id <= 0) {
+    notFound();
+  }
 
   return (
     <div className="flex flex-col">
+      {/* ------------------------------------------------------------------ */}
+      {/* CITY HEADER                                                        */}
+      {/* ------------------------------------------------------------------ */}
+
       <Suspense fallback={<CityHeaderSkeleton />}>
         <CityHeaderSection cityId={id} />
       </Suspense>
 
-      <Suspense fallback={<CityOverviewSkeleton />}>
-        <CityOverviewContent cityId={id} from={from} to={to} />
-      </Suspense>
+      {/* ------------------------------------------------------------------ */}
+      {/* DASHBOARD                                                          */}
+      {/* ------------------------------------------------------------------ */}
+
+      <div className="px-4 py-6">
+        <DashboardGrid
+          widgets={{
+            /* ------------------------------------------------------------ */
+            /* STAT CARDS                                                    */
+            /* ------------------------------------------------------------ */
+
+            "stat-cards": (
+              <Suspense fallback={<StatCardsSkeleton />}>
+                <StatCardsSection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* STATUS SUMMARY                                                */
+            /* ------------------------------------------------------------ */
+
+            "status-summary": (
+              <Suspense fallback={<StatusSummarySkeleton />}>
+                <StatusSummarySection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* EQUIPMENT BY PLANT                                            */
+            /* ------------------------------------------------------------ */
+
+            "equipment-by-plant": (
+              <Suspense fallback={<ChartSkeleton />}>
+                <EquipmentByPlantSection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* EQUIPMENT STATUS                                              */
+            /* ------------------------------------------------------------ */
+
+            "equipment-status-chart": (
+              <Suspense fallback={<ChartSkeleton />}>
+                <EquipmentStatusSection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* CITY SUMMARY TABLE                                            */
+            /* ------------------------------------------------------------ */
+
+            "city-summary-table": (
+              <Suspense fallback={<TableSkeleton />}>
+                <CitySummarySection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* ATTENTION                                                     */
+            /* ------------------------------------------------------------ */
+
+            "city-attention-cards": (
+              <Suspense fallback={<AttentionCardsSkeleton />}>
+                <CityAttentionSection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* STATUS HISTORY                                                */
+            /* ------------------------------------------------------------ */
+
+            "status-history-chart": (
+              <Suspense fallback={<ChartSkeleton />}>
+                <StatusHistorySection cityId={id} from={from} to={to} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* INSPECTION COVERAGE                                           */
+            /* ------------------------------------------------------------ */
+
+            "inspection-coverage": (
+              <Suspense fallback={<CardSkeleton />}>
+                <InspectionCoverageSection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* MEASUREMENT BREAKDOWN                                         */
+            /* ------------------------------------------------------------ */
+
+            "measurement-breakdown": (
+              <Suspense fallback={<ChartSkeleton />}>
+                <MeasurementBreakdownSection cityId={id} />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* MEASUREMENT TREND                                              */
+            /* ------------------------------------------------------------ */
+
+            "measurement-trend": (
+              <Suspense fallback={<ChartSkeleton />}>
+                <MeasurementTrendSection
+                  cityId={id}
+                  measurementType={measurementType}
+                />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* EQUIPMENT OVERVIEW                                             */
+            /* ------------------------------------------------------------ */
+
+            "equipment-status-overview": (
+              <Suspense fallback={<TableSkeleton />}>
+                <EquipmentOverviewSection
+                  cityId={id}
+                  plantId={equipmentPlantId}
+                />
+              </Suspense>
+            ),
+
+            /* ------------------------------------------------------------ */
+            /* PLANTS OVERVIEW                                                */
+            /* ------------------------------------------------------------ */
+
+            "plants-overview": (
+              <Suspense fallback={<TableSkeleton />}>
+                <PlantsOverviewSection cityId={id} />
+              </Suspense>
+            ),
+
+            "workshops-overview": (
+              <Suspense fallback={<TableSkeleton />}>
+                <WorkshopsOverviewSection
+                  cityId={id}
+                  plantId={workshopPlantId}
+                />
+              </Suspense>
+            ),
+          }}
+        />
+      </div>
     </div>
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*                              HEADER SECTION                                */
+/* -------------------------------------------------------------------------- */
+
 async function CityHeaderSection({ cityId }: { cityId: number }) {
   const city = await getCityHeaderInfo(cityId);
 
-  if (!city) notFound();
+  if (!city) {
+    notFound();
+  }
 
   return <CityHeader cityId={cityId} plants={city.plants} />;
 }
 
-async function CityOverviewContent({
+/* -------------------------------------------------------------------------- */
+/*                              STAT CARDS                                    */
+/* -------------------------------------------------------------------------- */
+
+async function StatCardsSection({ cityId }: { cityId: number }) {
+  const data = await getCityOverviewCached(cityId);
+
+  if (!data) {
+    notFound();
+  }
+
+  return <OverviewStatCards cityName={data.city.name} totals={data.totals} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                            STATUS SUMMARY                                  */
+/* -------------------------------------------------------------------------- */
+
+async function StatusSummarySection({ cityId }: { cityId: number }) {
+  const data = await getCityOverviewCached(cityId);
+
+  if (!data) {
+    notFound();
+  }
+
+  return <StatusSummaryCards statusCounts={data.statusCounts} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           EQUIPMENT BY PLANT                               */
+/* -------------------------------------------------------------------------- */
+
+async function EquipmentByPlantSection({ cityId }: { cityId: number }) {
+  const data = await getCityOverviewCached(cityId);
+
+  if (!data) {
+    notFound();
+  }
+
+  return <EquipmentByPlantChart data={data.equipmentByPlant} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           EQUIPMENT STATUS                                 */
+/* -------------------------------------------------------------------------- */
+
+async function EquipmentStatusSection({ cityId }: { cityId: number }) {
+  const data = await getCityOverviewCached(cityId);
+
+  if (!data) {
+    notFound();
+  }
+
+  return <EquipmentStatusChart statusCounts={data.statusCounts} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           CITY SUMMARY                                     */
+/* -------------------------------------------------------------------------- */
+
+async function CitySummarySection({ cityId }: { cityId: number }) {
+  const data = await getCityOverviewCached(cityId);
+
+  if (!data) {
+    notFound();
+  }
+
+  return <CitySummaryTable rows={data.equipmentByPlant} cityId={cityId} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           ATTENTION CARDS                                  */
+/* -------------------------------------------------------------------------- */
+
+async function CityAttentionSection({ cityId }: { cityId: number }) {
+  const data = await getCityOverviewCached(cityId);
+
+  if (!data) {
+    notFound();
+  }
+
+  return (
+    <CityAttentionCards
+      statusCounts={data.statusCounts}
+      equipmentByPlant={data.equipmentByPlant}
+    />
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           STATUS HISTORY                                   */
+/* -------------------------------------------------------------------------- */
+
+async function StatusHistorySection({
   cityId,
   from,
   to,
@@ -64,47 +434,90 @@ async function CityOverviewContent({
 }) {
   const hasCompleteRange = Boolean(from && to);
 
-  const [data, history, coverage] = await Promise.all([
-    getCityOverview(cityId),
-    getCityStatusHistory(cityId, {
-      from: hasCompleteRange ? new Date(from!) : undefined,
-      to: hasCompleteRange ? new Date(to!) : undefined,
-      monthsBack: 12,
-    }),
-    getCityInspectionCoverage(cityId, { staleDays: 30 }),
-  ]);
+  const history = await getCityStatusHistory(cityId, {
+    from: hasCompleteRange ? new Date(from!) : undefined,
+    to: hasCompleteRange ? new Date(to!) : undefined,
+    monthsBack: 12,
+  });
 
-  if (!data) notFound();
+  return <EquipmentStatusHistoryChart data={history} />;
+}
 
-  return (
-    <div className="space-y-6 px-4 py-6">
-      <OverviewStatCards cityName={data.city.name} totals={data.totals} />
+/* -------------------------------------------------------------------------- */
+/*                         INSPECTION COVERAGE                                */
+/* -------------------------------------------------------------------------- */
 
-      <StatusSummaryCards statusCounts={data.statusCounts} />
+async function InspectionCoverageSection({ cityId }: { cityId: number }) {
+  const coverage = await getCityInspectionCoverage(cityId, {
+    staleDays: 30,
+  });
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <EquipmentByPlantChart data={data.equipmentByPlant} />
-        <EquipmentStatusChart statusCounts={data.statusCounts} />
-      </div>
-      <div className="grid gap-4 lg:grid-cols-3">
-        <CitySummaryTable rows={data.equipmentByPlant} cityId={cityId} />
-        <CityAttentionCards
-          statusCounts={data.statusCounts}
-          equipmentByPlant={data.equipmentByPlant}
-        />
-      </div>
-      <div className="grid gap-4">
-        <EquipmentStatusHistoryChart data={history} />
-      </div>
-      <div className="grid gap-4">
-        <CityInspectionCoverageCard coverage={coverage} />
-      </div>
+  return <CityInspectionCoverageCard coverage={coverage} />;
+}
 
-      {/* 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <EquipmentStatusRadarChart statusCounts={data.statusCounts} />
-        <EquipmentByWorkshopChart data={data.equipmentByWorkshop} />
-      </div> */}
-    </div>
+/* -------------------------------------------------------------------------- */
+/*                         MEASUREMENT BREAKDOWN                              */
+/* -------------------------------------------------------------------------- */
+
+async function MeasurementBreakdownSection({ cityId }: { cityId: number }) {
+  const data = await getMeasurementTypeBreakdown(cityId);
+
+  return <MeasurementTypeBreakdownChart data={data} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           MEASUREMENT TREND                                */
+/* -------------------------------------------------------------------------- */
+
+async function MeasurementTrendSection({
+  cityId,
+  measurementType,
+}: {
+  cityId: number;
+  measurementType: string;
+}) {
+  const data = await getMeasurementTrend(
+    cityId,
+    measurementType as MeasurementType,
   );
+
+  return <MeasurementTrendChart data={data} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                        EQUIPMENT OVERVIEW                                  */
+/* -------------------------------------------------------------------------- */
+
+async function EquipmentOverviewSection({
+  cityId,
+  plantId,
+}: {
+  cityId: number;
+  plantId: number | null;
+}) {
+  const data = await getEquipmentStatusOverview(cityId, plantId);
+
+  return <EquipmentDataTable data={data} cityId={String(cityId)} />;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           PLANTS OVERVIEW                                   */
+/* -------------------------------------------------------------------------- */
+
+async function PlantsOverviewSection({ cityId }: { cityId: number }) {
+  const data = await getPlantsOverview(cityId);
+
+  return <PlantsOverviewTable data={data} cityId={cityId} />;
+}
+
+async function WorkshopsOverviewSection({
+  cityId,
+  plantId,
+}: {
+  cityId: number;
+  plantId: number | null;
+}) {
+  const data = await getWorkshopsOverview(cityId, plantId);
+
+  return <WorkshopsOverviewTable data={data} cityId={cityId} />;
 }

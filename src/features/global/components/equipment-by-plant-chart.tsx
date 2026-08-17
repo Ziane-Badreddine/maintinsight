@@ -80,6 +80,7 @@ export function EquipmentByPlantChart({ data }: EquipmentByPlantChartProps) {
               cursor={false}
               content={
                 <ChartTooltipContent
+                  indicator="line"
                   labelFormatter={(_, payload) =>
                     `${payload?.[0]?.payload?.name} (${payload?.[0]?.payload?.code})`
                   }

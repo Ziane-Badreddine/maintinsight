@@ -260,7 +260,10 @@ export async function getCityStatusHistory(
   const rows = await prisma.inspectionEquipment.findMany({
     where: {
       equipment: { workshop: { plant: { cityId } } },
-      inspection: { inspectionDate: { gte: since, lte: until } },
+      inspection: {
+        inspectionDate: { gte: since, lte: until },
+        status: "VALIDATED",
+      },
     },
     select: {
       status: true,
@@ -321,4 +324,159 @@ export async function getCityStatusHistory(
   return Array.from(points.values()).sort((a, b) =>
     a.date.localeCompare(b.date),
   );
+}
+
+export async function getPlantsOverview(cityId: number) {
+  console.log("getPlantsOverview START", cityId);
+  const plants = await prisma.plant.findMany({
+    where: {
+      cityId,
+    },
+    select: {
+      id: true,
+      code: true,
+      name: true,
+      cityId: true,
+      workshops: {
+        select: {
+          equipments: {
+            select: {
+              id: true,
+              inspections: {
+                where: {
+                  inspection: {
+                    status: {
+                      in: ["COMPLETED", "VALIDATED"],
+                    },
+                  },
+                },
+                select: {
+                  status: true,
+                  inspection: {
+                    select: {
+                      inspectionDate: true,
+                    },
+                  },
+                },
+                orderBy: {
+                  inspection: {
+                    inspectionDate: "desc",
+                  },
+                },
+                take: 1,
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      code: "asc",
+    },
+    take: 10,
+  });
+  console.log("getPlantsOverview END", plants.length);
+
+  return plants.map((plant) => {
+    const equipments = plant.workshops.flatMap(
+      (workshop) => workshop.equipments,
+    );
+
+    const totalEquipment = equipments.length;
+
+    const statuses = equipments
+      .map((equipment) => equipment.inspections[0]?.status)
+      .filter((status): status is EquipmentStatus => status !== undefined);
+
+    const critical = statuses.filter(
+      (status) => status === "ALARM" || status === "STOPPED",
+    ).length;
+
+    const good = statuses.filter((status) => status === "GOOD").length;
+
+    const inspectedEquipment = statuses.length;
+
+    const healthRate =
+      inspectedEquipment > 0
+        ? Math.round((good / inspectedEquipment) * 100)
+        : 0;
+
+    return {
+      id: plant.id,
+      code: plant.code,
+      name: plant.name,
+      totalEquipment,
+      healthRate,
+      critical,
+      cityId: plant.cityId,
+    };
+  });
+}
+
+export async function getWorkshopsOverview(
+  cityId: number,
+  plantId?: number | null,
+) {
+  const workshops = await prisma.workshop.findMany({
+    where: {
+      plant: {
+        cityId,
+        ...(plantId ? { id: plantId } : {}),
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      code: true,
+      plantId: true,
+      plant: { select: { name: true, code: true } },
+      equipments: {
+        select: {
+          id: true,
+          inspections: {
+            where: {
+              inspection: { status: { in: ["COMPLETED", "VALIDATED"] } },
+            },
+            select: {
+              status: true,
+              inspection: { select: { inspectionDate: true } },
+            },
+            orderBy: { inspection: { inspectionDate: "desc" } },
+            take: 1,
+          },
+        },
+      },
+    },
+    orderBy: { name: "asc" },
+    take: 10,
+  });
+
+  return workshops.map((workshop) => {
+    const statuses = workshop.equipments
+      .map((eq) => eq.inspections[0]?.status)
+      .filter((status): status is EquipmentStatus => status !== undefined);
+
+    const critical = statuses.filter(
+      (status) => status === "ALARM" || status === "STOPPED",
+    ).length;
+
+    const good = statuses.filter((status) => status === "GOOD").length;
+    const inspectedEquipment = statuses.length;
+
+    const healthRate =
+      inspectedEquipment > 0
+        ? Math.round((good / inspectedEquipment) * 100)
+        : 0;
+
+    return {
+      id: workshop.id,
+      name: workshop.name,
+      code: workshop.code,
+      plantId: workshop.plantId,
+      plantName: workshop.plant.name ?? workshop.plant.code,
+      totalEquipment: workshop.equipments.length,
+      healthRate,
+      critical,
+    };
+  });
 }

@@ -1,10 +1,5 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Header from "@/features/dashboard/components/header";
 import { AppSidebar } from "@/features/dashboard/layouts/app-sidebar";
 export default async function PlantLayout({

@@ -300,7 +300,7 @@ export function InspectionStatusAreaChart({
                   labelFormatter={(value) =>
                     format(new Date(value), "MMM d, yyyy")
                   }
-                  indicator="dot"
+                  indicator="line"
                 />
               }
             />

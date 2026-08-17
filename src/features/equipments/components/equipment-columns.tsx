@@ -34,7 +34,10 @@ import {
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/features/dashboard/components/data-table-column-header";
 import { Workshop } from "../../../../prisma/generated/prisma/client";
-import { EquipmentHighlightLink } from "@/features/dashboard/components/equipment-columns";
+import {
+  EquipmentHighlightLink,
+  EquipmentLink,
+} from "@/features/dashboard/components/equipment-columns";
 
 export interface EquipmentRow {
   id: number;
@@ -142,14 +145,9 @@ export function createEquipmentColumns({
         <DataTableColumnHeader title="Equipment" column={column} />
       ),
       cell: ({ row }) => (
-        <div>
-          <div className="font-medium">{row.original.name}</div>
-          {row.original.code && (
-            <div className="text-xs text-muted-foreground">
-              {row.original.code}
-            </div>
-          )}
-        </div>
+        <EquipmentLink id={row.original.id} segment="equipments">
+          {row.original.name ?? row.original.name}
+        </EquipmentLink>
       ),
       filterFn: "includesString",
       sortFn: "text",

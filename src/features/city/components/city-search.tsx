@@ -1,6 +1,6 @@
 "use client";
 
-import { debounce, useQueryState } from "nuqs";
+import { debounce } from "nuqs";
 import { SearchIcon, XIcon } from "lucide-react";
 import {
   InputGroup,

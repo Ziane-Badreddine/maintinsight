@@ -12,6 +12,7 @@ import { PlantSwitcherHeader } from "./plant-switcher";
 import UserAvatar from "@/components/common/user-avatar";
 import { Button } from "@/components/ui/button";
 import { SearchIcon, Slash } from "lucide-react";
+import { CreateInspectionButton } from "@/features/inspection/components/create-inspection-button";
 
 export default function Header() {
   const params = useParams<{ cityId?: string; plantId?: string }>();
@@ -45,6 +46,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-1">
+        <CreateInspectionButton />
         <Button variant="ghost" size="icon-sm" disabled className="opacity-50">
           <SearchIcon className="size-4" />
         </Button>
