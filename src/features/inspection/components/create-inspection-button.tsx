@@ -13,7 +13,7 @@ import { getOrCreateTodayDraftInspection } from "../actions/get-or-create-today-
 import { InspectionWithRelations } from "../types";
 
 import { InspectionHeaderSheet } from "./sheets/inspection-header-sheet";
-import { GrInspect } from "react-icons/gr";
+import { GrVmMaintenance } from "react-icons/gr";
 
 export function CreateInspectionButton() {
   const [open, setOpen] = useState(false);
@@ -44,7 +44,7 @@ export function CreateInspectionButton() {
         {isPending ? (
           <Loader2 className="size-4 animate-spin" />
         ) : (
-          <GrInspect className="size-4" />
+          <GrVmMaintenance className="size-4" />
         )}
         Inspect
       </Button>

@@ -4,13 +4,7 @@
 import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartContainer,
   ChartTooltip,
@@ -21,7 +15,6 @@ import {
   STATUS_CONFIG,
   STATUS_DISPLAY_ORDER,
 } from "@/features/global/constants/equipment-status";
-import { InspectionHistoryDateRangePicker } from "./inspection-history-date-range-picker";
 
 import type { EquipmentStatus } from "../../../../prisma/generated/prisma/enums";
 import { PlantStatusHistoryPoint } from "../actions/plant-inspections";
@@ -66,8 +59,8 @@ export function EquipmentStatusTrendChart({
   }));
 
   return (
-    <Card className="gap-0">
-      <CardHeader className="flex flex-col items-stretch border-b  sm:flex-row">
+    <Card className="gap-0 pt-0">
+      {/* <CardHeader className="flex flex-col items-stretch  sm:flex-row pt-4 border-b bg-muted">
         <div className="flex flex-1 flex-col justify-center gap-1  pt-4 pb-3 sm:py-0!">
           <div className="flex items-center justify-between gap-4">
             <div>
@@ -79,7 +72,7 @@ export function EquipmentStatusTrendChart({
             <InspectionHistoryDateRangePicker />
           </div>
         </div>
-      </CardHeader>
+      </CardHeader> */}
 
       <div className="flex overflow-x-auto border-b">
         {STATUS_DISPLAY_ORDER.map((status) => (

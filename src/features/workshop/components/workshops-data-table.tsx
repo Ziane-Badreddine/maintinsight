@@ -54,7 +54,6 @@ import {
 } from "@/components/common/data-table-filter-bar";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 interface WorkshopsDataTableProps {
@@ -152,7 +151,6 @@ export function WorkshopsDataTable({ data, plantId }: WorkshopsDataTableProps) {
     onColumnVisibilityChange: setColumnVisibility,
     state: { sorting, columnFilters, columnVisibility },
   });
-  const { state } = useSidebar();
 
   useEffect(() => {
     table.setPageSize(viewAll ? data.length || 1 : 10);
@@ -216,9 +214,6 @@ export function WorkshopsDataTable({ data, plantId }: WorkshopsDataTableProps) {
           <ScrollArea
             className={cn(
               "rounded-t-2xl rounded-b-xl outline-4 outline-input/30",
-              state === "collapsed"
-                ? "w-[calc(100svw-80px)]"
-                : "w-[calc(100svw-288px)]",
             )}
           >
             <Table>

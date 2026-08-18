@@ -2,6 +2,7 @@ import { resend, EMAIL_FROM } from "./resend";
 import VerifyEmail from "@/features/emails/templates/verify-email";
 import ChangeEmail from "@/features/emails/templates/change-email";
 import DeleteAccount from "@/features/emails/templates/delete-account";
+import ForgotPasswordEmail from "@/features/emails/templates/forgot-password";
 
 interface SendDeleteAccountVerificationParams {
   to: string;
@@ -13,6 +14,12 @@ interface SendVerificationEmailParams {
   to: string;
   userName: string;
   verificationUrl: string;
+}
+
+interface SendForgotPasswordEmailParams {
+  to: string;
+  userName: string;
+  resetUrl: string;
 }
 
 export async function sendVerificationEmail({
@@ -64,7 +71,7 @@ export async function sendDeleteAccountVerification({
   userName,
   deleteUrl,
 }: SendDeleteAccountVerificationParams) {
-  const { data, error } = await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: EMAIL_FROM,
     to,
     subject: "Confirm account deletion",
@@ -73,7 +80,22 @@ export async function sendDeleteAccountVerification({
 
   if (error) {
     console.error("Failed to send delete-account verification:", error);
-  } else {
-    console.log("Delete-account verification sent:", data?.id);
+  }
+}
+
+export async function sendForgotPasswordEmail({
+  to,
+  userName,
+  resetUrl,
+}: SendForgotPasswordEmailParams) {
+  const { error } = await resend.emails.send({
+    from: EMAIL_FROM,
+    to,
+    subject: "Reset your password",
+    react: ForgotPasswordEmail({ userName, resetUrl }),
+  });
+
+  if (error) {
+    console.error("Failed to send forgot-password email:", error);
   }
 }

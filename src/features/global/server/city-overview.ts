@@ -327,7 +327,6 @@ export async function getCityStatusHistory(
 }
 
 export async function getPlantsOverview(cityId: number) {
-  console.log("getPlantsOverview START", cityId);
   const plants = await prisma.plant.findMany({
     where: {
       cityId,
@@ -375,7 +374,6 @@ export async function getPlantsOverview(cityId: number) {
     },
     take: 10,
   });
-  console.log("getPlantsOverview END", plants.length);
 
   return plants.map((plant) => {
     const equipments = plant.workshops.flatMap(

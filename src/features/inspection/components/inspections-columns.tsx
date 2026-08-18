@@ -10,6 +10,10 @@ import {
   STATUS_DISPLAY_ORDER,
 } from "@/features/global/constants/equipment-status";
 import { PlantInspectionRow } from "../actions/plant-inspections";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ChevronRightIcon } from "lucide-react";
 
 const WORKFLOW_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
   DRAFT: "outline",
@@ -22,12 +26,38 @@ const columnHelper = createColumnHelper<
   PlantInspectionRow
 >();
 
+function InspectionLink({
+  children,
+  inspectionId,
+}: {
+  children: React.ReactNode;
+  inspectionId: number;
+}) {
+  const params = useParams<{ cityId: string }>();
+  return (
+    <Link
+      href={{
+        pathname: `/dashboard/cities/${params.cityId}/inspections/${inspectionId}`,
+      }}
+      className="font-medium hover:underline"
+    >
+      {children}
+    </Link>
+  );
+}
+
 export const inspectionColumns = columnHelper.columns([
   columnHelper.accessor("reference", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Reference" />
     ),
-    cell: ({ row }) => row.original.reference ?? `#${row.original.id}`,
+    cell: ({ row }) => (
+      <div className="hover:underline">
+        <InspectionLink inspectionId={row.original.id}>
+          {row.original.reference ?? `#${row.original.id}`}
+        </InspectionLink>
+      </div>
+    ),
     filterFn: "includesString",
     sortFn: "text",
     enableHiding: false,
@@ -84,5 +114,21 @@ export const inspectionColumns = columnHelper.columns([
     ),
     filterFn: "includesString",
     sortFn: "text",
+  }),
+
+  columnHelper.display({
+    id: "actions",
+    cell: ({ row }) => (
+      <div className="flex justify-end">
+        <InspectionLink inspectionId={row.original.id}>
+          <Button variant="ghost" size="icon" className="size-8">
+            <ChevronRightIcon className="size-4" />
+          </Button>
+        </InspectionLink>
+      </div>
+    ),
+    enableHiding: false,
+    enableSorting: false,
+    size: 48,
   }),
 ]);

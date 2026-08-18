@@ -107,7 +107,7 @@ export function PlantsOverviewTable({
                       `/dashboard/cities/${cityId}/plants/${row.original.id}`,
                     )
                   }
-                  className="h-11 cursor-pointer hover:bg-muted/50 even:bg-card"
+                  className="h-11 cursor-pointer hover:bg-muted/50 "
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

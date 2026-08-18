@@ -55,8 +55,8 @@ export function EquipmentStatusHistoryChart({
         : `${data[0].label} - ${data[data.length - 1].label}`;
 
   return (
-    <Card className="col-span-2">
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+    <Card className="col-span-2 pt-0">
+      <CardHeader className="flex flex-row items-start justify-between gap-4 border-b bg-muted pt-4">
         <div>
           <CardTitle>Status history</CardTitle>
           <CardDescription>

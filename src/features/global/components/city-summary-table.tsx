@@ -100,7 +100,7 @@ export function CitySummaryTable({ rows, cityId }: CitySummaryTableProps) {
             );
 
             return (
-              <TableRow key={row.plantId} className="even:bg-card">
+              <TableRow key={row.plantId}>
                 <TableCell>
                   <Link
                     href={`/dashboard/cities/${cityId}/plants/${row.plantId}`}

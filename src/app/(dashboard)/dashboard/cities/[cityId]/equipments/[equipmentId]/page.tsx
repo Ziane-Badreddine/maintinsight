@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { loadInspectionHistorySearchParams } from "@/features/inspection/utils/inspection-history";
 import { EquipmentHeaderCard } from "@/features/equipments/components/equipment-header-card";
+import { EquipmentActionsToolbar } from "@/features/equipments/components/equipment-actions-toolbar";
 import {
   getEquipmentHeaderInfo,
   getEquipmentInspections,
@@ -10,6 +11,10 @@ import {
 } from "@/features/equipments/actions/equipment-detail";
 import { EquipmentStatusHistoryTrendChart } from "@/features/equipments/components/equipment-status-trend-chart";
 import { EquipmentInspectionsDataTable } from "@/features/equipments/components/equipment-inspections-data-table";
+
+function ToolbarSkeleton() {
+  return <Skeleton className="h-9 w-full rounded-lg" />;
+}
 
 function HeaderSkeleton() {
   return <Skeleton className="h-28 w-full rounded-xl" />;
@@ -45,18 +50,21 @@ function TableSkeleton() {
 export default async function EquipmentDetailPage({
   params,
   searchParams,
-}: PageProps<"/dashboard/cities/[cityId]/plants/[plantId]/equipments/[equipmentId]">) {
-  const { cityId, plantId, equipmentId } = await params;
+}: PageProps<"/dashboard/cities/[cityId]/equipments/[equipmentId]">) {
+  const { cityId, equipmentId } = await params;
   const { from, to } = await loadInspectionHistorySearchParams(searchParams);
 
   const cId = Number(cityId);
-  const pId = Number(plantId);
   const eId = Number(equipmentId);
 
   if (!Number.isInteger(eId) || eId <= 0) notFound();
 
   return (
-    <div className="flex flex-col gap-6 px-4 py-6">
+    <div className="flex flex-col gap-6 ">
+      <Suspense fallback={<ToolbarSkeleton />}>
+        <ToolbarSection equipmentId={eId} cityId={cityId} />
+      </Suspense>
+
       <Suspense fallback={<HeaderSkeleton />}>
         <HeaderSection equipmentId={eId} />
       </Suspense>
@@ -66,10 +74,23 @@ export default async function EquipmentDetailPage({
       </Suspense>
 
       <Suspense fallback={<TableSkeleton />}>
-        <TableSection cityId={cId} plantId={pId} equipmentId={eId} />
+        <TableSection cityId={cId} equipmentId={eId} />
       </Suspense>
     </div>
   );
+}
+
+async function ToolbarSection({
+  equipmentId,
+  cityId,
+}: {
+  equipmentId: number;
+  cityId: string;
+}) {
+  const equipment = await getEquipmentHeaderInfo(equipmentId);
+  if (!equipment) notFound();
+
+  return <EquipmentActionsToolbar equipment={equipment} cityId={cityId} />;
 }
 
 async function HeaderSection({ equipmentId }: { equipmentId: number }) {
@@ -100,19 +121,11 @@ async function ChartSection({
 
 async function TableSection({
   cityId,
-  plantId,
   equipmentId,
 }: {
   cityId: number;
-  plantId: number;
   equipmentId: number;
 }) {
   const data = await getEquipmentInspections(equipmentId);
-  return (
-    <EquipmentInspectionsDataTable
-      data={data}
-      cityId={cityId}
-      plantId={plantId}
-    />
-  );
+  return <EquipmentInspectionsDataTable data={data} cityId={cityId} />;
 }

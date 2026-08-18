@@ -58,7 +58,6 @@ import {
   type DataTableFilterConfig,
 } from "@/components/common/data-table-filter-bar";
 import { parseAsInteger, useQueryState } from "nuqs";
-import { useSidebar } from "@/components/ui/sidebar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
@@ -104,7 +103,6 @@ export function EquipmentDataTable({
 
   // --- filter bar state ---
   const [activeFilterIds, setActiveFilterIds] = useState<string[]>([]);
-  const { state } = useSidebar();
 
   const equipmentFilters: DataTableFilterConfig[] = [
     {
@@ -246,9 +244,6 @@ export function EquipmentDataTable({
           <ScrollArea
             className={cn(
               "rounded-t-2xl rounded-b-xl outline-4 outline-input/30 ",
-              state === "collapsed"
-                ? "w-[calc(100svw-80px)]"
-                : "w-[calc(100svw-288px)]",
             )}
           >
             <Table>

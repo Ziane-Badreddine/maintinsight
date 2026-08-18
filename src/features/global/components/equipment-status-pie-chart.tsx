@@ -44,8 +44,8 @@ export function EquipmentStatusChart({
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
+    <Card className="col-span-2 pt-0">
+      <CardHeader className="border-b bg-muted pt-4">
         <CardTitle>Status distribution</CardTitle>
         <CardDescription>
           Current status of the site&apos;s {total} equipment

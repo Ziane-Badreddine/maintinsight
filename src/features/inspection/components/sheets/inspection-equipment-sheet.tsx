@@ -67,6 +67,7 @@ import {
   INSPECTION_SHEET_CLASS,
   INSPECTION_SHEET_SCROLL_CLASS,
 } from "./inspection-sheet-styles";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface InspectionEquipmentSheetProps {
   open: boolean;
@@ -97,6 +98,7 @@ export function InspectionEquipmentSheet({
 }: InspectionEquipmentSheetProps) {
   const [isPending, startTransition] = useTransition();
   const [isRemoving, startRemove] = useTransition();
+  const queryClient = useQueryClient();
   const [activeMeasurement, setActiveMeasurement] =
     useState<ActiveMeasurement>(null);
   const [removeTarget, setRemoveTarget] = useState<Measurement | null>(null);
@@ -131,6 +133,9 @@ export function InspectionEquipmentSheet({
       }
 
       toast.add({ type: "success", title: "Equipment inspection saved" });
+      queryClient.invalidateQueries({
+        queryKey: ["city-critical-equipments"],
+      });
       onSaved();
       onOpenChange(false);
     });

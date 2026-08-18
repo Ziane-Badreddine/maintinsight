@@ -18,7 +18,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import {
+  Item,
+  ItemContent,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+  ItemDescription,
+} from "@/components/ui/item";
 import { cn } from "@/lib/utils";
 import { InspectionDetailData } from "../actions/inspection-detail";
 
@@ -97,7 +104,7 @@ export function InspectionEquipmentCard({
 
             {hasMeasurements && (
               <CollapsibleTrigger
-                nativeButton={false}
+                nativeButton
                 render={
                   <button
                     type="button"
@@ -148,31 +155,31 @@ export function InspectionEquipmentCard({
         {hasMeasurements && (
           <CollapsibleContent>
             <CardContent className="pt-0">
-              <Table>
-                <TableBody>
-                  {entry.measurements.map((m) => (
-                    <TableRow key={m.id}>
-                      <TableCell className="font-medium pl-0">
-                        {m.point}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {m.type}
-                      </TableCell>
-                      <TableCell className="text-right">
+              <ItemGroup>
+                {entry.measurements.map((m, i) => (
+                  <div key={m.id}>
+                    <Item size="sm">
+                      <ItemContent>
+                        <ItemTitle>{m.point}</ItemTitle>
+                        <ItemDescription>{m.type}</ItemDescription>
+                      </ItemContent>
+                      <div className="text-sm font-medium tabular-nums">
                         {m.value !== null ? `${m.value} ${m.unit ?? ""}` : "—"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                    </Item>
+                    {i < entry.measurements.length - 1 && <ItemSeparator />}
+                  </div>
+                ))}
+              </ItemGroup>
             </CardContent>
           </CollapsibleContent>
         )}
       </Collapsible>
-      <CardFooter>
+      <CardFooter className="bg-muted">
         <Button
           variant="outline"
           className={"ml-auto"}
+          nativeButton={false}
           render={
             <Link
               href={`/dashboard/cities/${cityId}/plants/${plantId}/equipments/${entry.equipment.id}`}

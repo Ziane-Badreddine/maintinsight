@@ -24,11 +24,12 @@ export function RefreshButton() {
 
   return (
     <Button
-      variant="ghost"
+      variant="outline"
       size="icon"
       onClick={handleRefresh}
       disabled={isPending}
       aria-label="Refresh"
+      className={"rounded-full"}
     >
       <RefreshCwIcon
         className={`size-4 ${isPending || spinning ? "animate-spin" : ""}`}

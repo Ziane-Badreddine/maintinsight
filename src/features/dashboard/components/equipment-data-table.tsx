@@ -32,7 +32,6 @@ import { features } from "./data-table-features";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 const STATUS_TABS = [
@@ -55,7 +54,6 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
     useState<ColumnVisibilityState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [viewAll, setViewAll] = useState(false);
-  const { state } = useSidebar();
 
   const table = useTable({
     features,
@@ -133,9 +131,6 @@ export function EquipmentDataTable({ data }: EquipmentDataTableProps) {
           <ScrollArea
             className={cn(
               "rounded-t-2xl rounded-b-xl outline-4 outline-input/30",
-              state === "collapsed"
-                ? "w-[calc(100svw-80px)]"
-                : "w-[calc(100svw-288px)]",
             )}
           >
             <Table>

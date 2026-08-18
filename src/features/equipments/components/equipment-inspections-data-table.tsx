@@ -1,8 +1,6 @@
-// features/plant/components/equipment-inspections-data-table.tsx
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   useTable,
   type ColumnFiltersState,
@@ -35,15 +33,13 @@ import { EquipmentInspectionRow } from "../actions/equipment-detail";
 interface EquipmentInspectionsDataTableProps {
   data: EquipmentInspectionRow[];
   cityId: number;
-  plantId: number;
 }
 
 export function EquipmentInspectionsDataTable({
   data,
-  cityId,
-  plantId,
+  // cityId,
 }: EquipmentInspectionsDataTableProps) {
-  const router = useRouter();
+  // const router = useRouter();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
     useState<ColumnVisibilityState>({});
@@ -67,7 +63,7 @@ export function EquipmentInspectionsDataTable({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="text-sm font-medium text-muted-foreground">
+        <h2 className="text-lg font-medium text-muted-foreground">
           Inspection history
         </h2>
         <DataTableViewOptions table={table} />
@@ -105,12 +101,12 @@ export function EquipmentInspectionsDataTable({
               {rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/cities/${cityId}/plants/${plantId}/inspections/${row.original.inspectionId}`,
-                    )
-                  }
-                  className="h-11 cursor-pointer hover:bg-muted/50 even:bg-card"
+                  // onClick={() =>
+                  //   router.push(
+                  //     `/dashboard/cities/${cityId}/plants/${plantId}/inspections/${row.original.inspectionId}`,
+                  //   )
+                  // }
+                  className="h-11 cursor-pointer hover:bg-muted/50 "
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

@@ -50,7 +50,7 @@ export function RegisterForm({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
               <Input
                 {...field}
                 id="name"
@@ -97,7 +97,7 @@ export function RegisterForm({
                 aria-invalid={fieldState.invalid}
                 type="password"
                 className="bg-background"
-                placeholder="*********"
+                placeholder="password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

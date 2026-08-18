@@ -67,8 +67,8 @@ export function MeasurementTypeBreakdownChart({
   // );
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="col-span-2 pt-0">
+      <CardHeader className="border-b bg-muted pt-4">
         <CardTitle>Measurements by type</CardTitle>
         <CardDescription>
           Distribution of recorded measurements by type
