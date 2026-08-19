@@ -50,7 +50,7 @@ export function InspectionEquipmentCard({
   const [open, setOpen] = useState(false);
   const hasMeasurements = entry.measurements.length > 0;
 
-  const { cityId, plantId } = useParams<{
+  const { cityId } = useParams<{
     cityId: string;
     plantId: string;
   }>();
@@ -182,7 +182,7 @@ export function InspectionEquipmentCard({
           nativeButton={false}
           render={
             <Link
-              href={`/dashboard/cities/${cityId}/plants/${plantId}/equipments/${entry.equipment.id}`}
+              href={`/dashboard/cities/${cityId}/equipments/${entry.equipment.id}`}
             >
               View equipment
               <ExternalLink className="size-3.5" />

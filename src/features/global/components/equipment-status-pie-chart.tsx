@@ -78,7 +78,12 @@ export function EquipmentStatusChart({
                 <Cell key={entry.status} fill={entry.fill} />
               ))}
             </Pie>
-            <ChartLegend content={<ChartLegendContent nameKey="status" />} />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="status" />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
           </PieChart>
         </ChartContainer>
       </CardContent>

@@ -12,7 +12,8 @@ export type DashboardWidgetId =
   | "measurement-trend"
   | "equipment-status-overview"
   | "plants-overview"
-  | "workshops-overview";
+  | "workshops-overview"
+  | "alarms-overview";
 
 export const DEFAULT_WIDGET_ORDER: DashboardWidgetId[] = [
   "stat-cards",
@@ -21,6 +22,7 @@ export const DEFAULT_WIDGET_ORDER: DashboardWidgetId[] = [
   "equipment-status-chart",
   "city-summary-table",
   "city-attention-cards",
+  "alarms-overview",
   "status-history-chart",
   "inspection-coverage",
   "measurement-breakdown",
@@ -37,6 +39,7 @@ export const WIDGET_SPAN: Record<DashboardWidgetId, string> = {
   "equipment-status-chart": "lg:col-span-1",
   "city-summary-table": "lg:col-span-2",
   "city-attention-cards": "lg:col-span-1",
+  "alarms-overview": "lg:col-span-3",
   "status-history-chart": "lg:col-span-3",
   "inspection-coverage": "lg:col-span-3",
   "measurement-breakdown": "lg:col-span-2",
@@ -53,6 +56,7 @@ export const WIDGET_LABEL: Record<DashboardWidgetId, string> = {
   "equipment-status-chart": "Equipment status chart",
   "city-summary-table": "City summary table",
   "city-attention-cards": "Attention needed",
+  "alarms-overview": "Alarms overview",
   "status-history-chart": "Status history",
   "inspection-coverage": "Inspection coverage",
   "measurement-breakdown": "Measurements by type",

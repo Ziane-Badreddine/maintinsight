@@ -52,9 +52,9 @@ export const STATUS_CONFIG: Record<
 
   STOPPED: {
     label: "Stopped",
-    color: "#71717a",
+    color: "#3b82f6",
     badgeClass:
-      "bg-zinc-500/10 text-zinc-600 border-zinc-500/20 dark:text-zinc-400",
+      "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400",
     icon: CircleStop,
   },
 
@@ -68,10 +68,10 @@ export const STATUS_CONFIG: Record<
 };
 
 export const STATUS_DISPLAY_ORDER: EquipmentStatus[] = [
+  "NOT_MONITORED",
+  "STOPPED",
   "GOOD",
   "ACCEPTABLE",
   "ALERT",
   "ALARM",
-  "STOPPED",
-  "NOT_MONITORED",
 ];

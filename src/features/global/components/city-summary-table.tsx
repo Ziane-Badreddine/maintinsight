@@ -59,7 +59,7 @@ export function CitySummaryTable({ rows, cityId }: CitySummaryTableProps) {
   return (
     <ScrollArea
       className={cn(
-        "rounded-t-2xl rounded-b-xl outline-4 outline-input/30 w-[calc(100svw-32px)]  lg:w-[calc(100svw-32px-482.938px-32px)] col-span-2 relative",
+        "rounded-t-2xl rounded-b-xl outline-4 outline-input/30  col-span-2 relative",
       )}
     >
       <div
@@ -73,7 +73,7 @@ export function CitySummaryTable({ rows, cityId }: CitySummaryTableProps) {
         <TableHeader className="bg-input/30 h-12 ">
           <TableRow>
             <TableHead>Plant</TableHead>
-            <TableHead className="text-right">Workshops</TableHead>
+            {/* <TableHead className="text-right">Workshops</TableHead> */}
             <TableHead className="text-right">Equipment</TableHead>
             {STATUS_DISPLAY_ORDER.map((status) => (
               <TableHead
@@ -110,9 +110,9 @@ export function CitySummaryTable({ rows, cityId }: CitySummaryTableProps) {
                   </Link>
                 </TableCell>
 
-                <TableCell className="text-right">
+                {/* <TableCell className="text-right">
                   {row.workshopCount}
-                </TableCell>
+                </TableCell> */}
 
                 <TableCell className="text-right">{row.total}</TableCell>
 
@@ -148,7 +148,7 @@ export function CitySummaryTable({ rows, cityId }: CitySummaryTableProps) {
         <TableFooter className="bg-card h-12 rounded-4xl ">
           <TableRow>
             <TableCell>Total</TableCell>
-            <TableCell className="text-right">{totals.workshopCount}</TableCell>
+            {/* <TableCell className="text-right">{totals.workshopCount}</TableCell> */}
             <TableCell className="text-right">{totals.total}</TableCell>
             {STATUS_DISPLAY_ORDER.map((status) => (
               <TableCell key={status} className="text-right font-medium">

@@ -10,6 +10,8 @@ import {
   ChartLegendContent,
 } from "@/components/ui/chart";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
+import { STATUS_DISPLAY_ORDER } from "@/features/global/constants/equipment-status";
+import { EquipmentStatus } from "../../../../prisma/generated/prisma/enums";
 
 interface EquipmentStatusBarChartProps {
   statusCounts: Record<string, number>;
@@ -47,8 +49,13 @@ export function EquipmentStatusBarChart({
             <XAxis type="number" domain={[0, total]} hide />
             <YAxis dataKey="name" type="category" hide />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <ChartLegend content={<ChartLegendContent />} />
-            {statuses.map((status) => (
+            <ChartLegend
+              content={<ChartLegendContent />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
+            {STATUS_DISPLAY_ORDER.map((status) => (
               <Bar
                 key={status}
                 dataKey={status}

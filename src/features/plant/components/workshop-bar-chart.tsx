@@ -10,6 +10,8 @@ import {
   ChartLegendContent,
 } from "@/components/ui/chart";
 import { statusChartConfig } from "./chart-config";
+import { STATUS_DISPLAY_ORDER } from "@/features/global/constants/equipment-status";
+import { EquipmentStatus } from "../../../../prisma/generated/prisma/enums";
 
 interface WorkshopBarChartProps {
   byWorkshop: Record<string, Record<string, number>>;
@@ -20,10 +22,6 @@ export function WorkshopBarChart({ byWorkshop }: WorkshopBarChartProps) {
     workshop,
     ...counts,
   }));
-
-  const statuses = Object.keys(statusChartConfig) as Array<
-    keyof typeof statusChartConfig
-  >;
 
   return (
     <Card className="col-span-2 pt-0">
@@ -46,12 +44,17 @@ export function WorkshopBarChart({ byWorkshop }: WorkshopBarChartProps) {
             />
             {/* <YAxis tickLine={false} axisLine={false} /> */}
             <ChartTooltip content={<ChartTooltipContent />} />
-            <ChartLegend content={<ChartLegendContent />} />
-            {statuses.map((status) => (
+            <ChartLegend
+              content={<ChartLegendContent />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
+            {STATUS_DISPLAY_ORDER.map((status) => (
               <Bar
                 key={status}
                 dataKey={status}
-                stackId="a"
+                stackId="status"
                 fill={`var(--color-${status})`}
                 radius={0}
               />

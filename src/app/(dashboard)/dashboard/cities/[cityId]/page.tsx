@@ -41,6 +41,10 @@ import { PlantsOverviewTable } from "@/features/global/components/plants-overvie
 import { Skeleton } from "@/components/ui/skeleton";
 import { WorkshopsOverviewTable } from "@/features/global/components/workshops-overview-table";
 import { loadWorkshopsOverviewSearchParams } from "@/features/global/search-params/workshops-overview";
+// add these imports
+import { getCityAlarmsOverview } from "@/features/global/server/city-alarms-overview";
+import { loadAlarmsOverviewSearchParams } from "@/features/global/search-params/alarms-overview";
+import { AlarmsOverviewTable } from "@/features/global/components/alarms-overview-table";
 
 /* -------------------------------------------------------------------------- */
 /*                                  CACHING                                   */
@@ -127,6 +131,29 @@ function TableSkeleton() {
   );
 }
 
+function AlarmsTableSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-48" />
+
+      <div className="rounded-xl border">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 border-b p-4 last:border-b-0"
+          >
+            <Skeleton className="h-5 flex-1" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-5 w-24" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*                              PAGE COMPONENT                                */
 /* -------------------------------------------------------------------------- */
@@ -141,11 +168,13 @@ export default async function CityDashboardPage({
     { measurementType },
     { equipmentPlantId },
     { workshopPlantId },
+    { alarmPlantId },
   ] = await Promise.all([
     loadStatusHistorySearchParams(searchParams),
     loadMeasurementTrendSearchParams(searchParams),
     loadEquipmentStatusOverviewSearchParams(searchParams),
-    loadWorkshopsOverviewSearchParams(searchParams), // ← ajouté
+    loadWorkshopsOverviewSearchParams(searchParams),
+    loadAlarmsOverviewSearchParams(searchParams),
   ]);
 
   const id = Number(cityId);
@@ -192,6 +221,11 @@ export default async function CityDashboardPage({
             "city-attention-cards": (
               <Suspense fallback={<AttentionCardsSkeleton />}>
                 <CityAttentionSection cityId={id} />
+              </Suspense>
+            ),
+            "alarms-overview": (
+              <Suspense fallback={<AlarmsTableSkeleton />}>
+                <AlarmsOverviewSection cityId={id} plantId={alarmPlantId} />
               </Suspense>
             ),
 
@@ -394,4 +428,17 @@ async function WorkshopsOverviewSection({
   const data = await getWorkshopsOverview(cityId, plantId);
 
   return <WorkshopsOverviewTable data={data} cityId={cityId} />;
+}
+
+async function AlarmsOverviewSection({
+  cityId,
+  plantId,
+}: {
+  cityId: number;
+  plantId: number | null;
+}) {
+  const data = await getCityAlarmsOverview(cityId, plantId);
+  console.log(data);
+
+  return <AlarmsOverviewTable data={data} />;
 }

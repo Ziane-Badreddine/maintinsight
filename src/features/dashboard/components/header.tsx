@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SearchIcon, Slash, SquareMousePointer } from "lucide-react";
+import { SearchIcon, Slash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import UserAvatar from "@/components/common/user-avatar";
@@ -15,7 +15,6 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useDashboardLayoutStore } from "@/features/global/stores/dashboard-layout-store";
 
 import { CreateInspectionButton } from "@/features/inspection/components/create-inspection-button";
 
@@ -24,11 +23,13 @@ import { EditModeToolbar } from "@/features/global/components/edit-mode-toolbar"
 import { Route } from "next";
 import { cn } from "@/lib/utils";
 import { CityAdvisorCenter } from "./advisor-center";
+import FullscreenButton from "./fullscreen-button";
+import { CustomizeDashboardButton } from "./customize-dashboard-button";
 
 interface NavItem {
   label: string;
   href: Route;
-  /** true seulement pour l'item "racine" (Overview) — évite qu'il matche tout en préfixe */
+
   exact?: boolean;
 }
 
@@ -36,8 +37,7 @@ function isNavItemActive(pathname: string, item: NavItem): boolean {
   if (item.exact) {
     return pathname === item.href;
   }
-  // Actif si on est exactement sur le href, ou sur une sous-route
-  // (ex: /equipments/220 doit activer /equipments)
+
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
@@ -47,10 +47,6 @@ export default function Header() {
   const hasCityContext = Boolean(params.cityId);
 
   const isMobile = useIsMobile();
-
-  const isEditMode = useDashboardLayoutStore((s) => s.isEditMode);
-  const hasHydrated = useDashboardLayoutStore((s) => s.hasHydrated);
-  const toggleEditMode = useDashboardLayoutStore((s) => s.toggleEditMode);
 
   const nav: NavItem[] = [
     {
@@ -113,18 +109,9 @@ export default function Header() {
             <SearchIcon className="size-4" />
           </Button>
 
-          {/^\/dashboard\/cities\/[^/]+$/.test(pathname) && (
-            <Button
-              variant={hasHydrated && isEditMode ? "secondary" : "outline"}
-              size="icon"
-              disabled={!hasHydrated || isEditMode}
-              onClick={toggleEditMode}
-              title="Customize dashboard"
-              className={"rounded-full"}
-            >
-              <SquareMousePointer className="size-4" />
-            </Button>
-          )}
+          <CustomizeDashboardButton />
+
+          <FullscreenButton />
 
           <CityAdvisorCenter cityId={Number(params.cityId)} />
           <RefreshButton />

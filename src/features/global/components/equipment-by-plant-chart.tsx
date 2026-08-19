@@ -101,7 +101,12 @@ export function EquipmentByPlantChart({ data }: EquipmentByPlantChartProps) {
                 />
               );
             })}
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend
+              content={<ChartLegendContent />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>

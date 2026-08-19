@@ -23,14 +23,19 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { SettingsDialog } from "@/features/auth/components/settings-dialog";
 import { Spinner } from "../ui/spinner";
+import { useHotkey } from "@tanstack/react-hotkeys";
 
 export default function UserAvatar() {
   const { data: session, isPending } = authClient.useSession();
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const router = useRouter();
 
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [isLoggingOut, startLogoutTransition] = React.useTransition();
+
+  useHotkey("D", () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  });
 
   const handleLogout = () => {
     startLogoutTransition(async () => {

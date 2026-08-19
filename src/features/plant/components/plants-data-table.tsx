@@ -20,7 +20,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { SearchIcon, BuildingIcon } from "lucide-react";
+import { SearchIcon, BuildingIcon, Plus } from "lucide-react";
 import {
   Empty,
   EmptyHeader,
@@ -31,6 +31,8 @@ import {
 import { createPlantColumns, type PlantRow } from "./plant-columns";
 import { features } from "@/features/dashboard/components/data-table-features";
 import { DataTableViewOptions } from "@/features/dashboard/components/data-table-view-options";
+import { NewPlantSheet } from "./new-plant-sheet";
+import { Button } from "@/components/ui/button";
 
 interface PlantsDataTableProps {
   data: PlantRow[];
@@ -39,6 +41,7 @@ interface PlantsDataTableProps {
 export function PlantsDataTable({ data }: PlantsDataTableProps) {
   const router = useRouter();
   const params = useParams<{ cityId: string }>();
+  const [open, setOpen] = useState(false);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([
@@ -78,6 +81,14 @@ export function PlantsDataTable({ data }: PlantsDataTableProps) {
           </InputGroup>
           <DataTableViewOptions table={table} />
         </div>
+        <Button
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          <Plus />
+          New plant
+        </Button>
       </div>
 
       {rows.length === 0 ? (
@@ -128,6 +139,12 @@ export function PlantsDataTable({ data }: PlantsDataTableProps) {
           </Table>
         </div>
       )}
+
+      <NewPlantSheet
+        cityId={Number(params.cityId)}
+        open={open}
+        onOpenChange={setOpen}
+      />
     </div>
   );
 }
