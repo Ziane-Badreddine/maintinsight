@@ -44,8 +44,8 @@ export function EquipmentStatusChart({
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader>
+    <Card className="col-span-2 pt-0">
+      <CardHeader className="border-b bg-muted pt-4">
         <CardTitle>Status distribution</CardTitle>
         <CardDescription>
           Current status of the site&apos;s {total} equipment
@@ -78,7 +78,12 @@ export function EquipmentStatusChart({
                 <Cell key={entry.status} fill={entry.fill} />
               ))}
             </Pie>
-            <ChartLegend content={<ChartLegendContent nameKey="status" />} />
+            <ChartLegend
+              content={<ChartLegendContent nameKey="status" />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
           </PieChart>
         </ChartContainer>
       </CardContent>

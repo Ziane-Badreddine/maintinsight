@@ -11,7 +11,13 @@ import {
   Bolt,
   Radar,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Combobox,
   ComboboxContent,
@@ -80,9 +86,10 @@ export function MeasurementTrendChart({ data }: MeasurementTrendChartProps) {
   const SelectedIcon = selectedType.icon;
 
   return (
-    <Card className="h-full">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <Card className="h-full pt-0">
+      <CardHeader className="flex flex-row items-center justify-between bg-muted border-b pt-4">
         <CardTitle>Measurement trend</CardTitle>
+        <CardDescription></CardDescription>
 
         <Combobox<MeasurementTypeOption>
           items={TYPE_OPTIONS}
@@ -119,7 +126,7 @@ export function MeasurementTrendChart({ data }: MeasurementTrendChartProps) {
 
       <CardContent>
         {data.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
+          <p className="py-8 text-center text-sm text-muted-foreground h-full">
             No {measurementType.toLowerCase()} measurements in the last 6
             months.
           </p>

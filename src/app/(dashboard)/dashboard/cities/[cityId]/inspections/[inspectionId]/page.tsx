@@ -1,4 +1,4 @@
-// app/(dashboard)/dashboard/cities/[cityId]/plants/[plantId]/inspections/[inspectionId]/page.tsx
+// app/(dashboard)/dashboard/cities/[cityId]/inspections/[inspectionId]/page.tsx
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,9 +13,19 @@ import { WrenchIcon } from "lucide-react";
 import { getInspectionDetail } from "@/features/inspection/actions/inspection-detail";
 import { InspectionHeaderCard } from "@/features/inspection/components/inspection-header-card";
 import { InspectionEquipmentCard } from "@/features/inspection/components/inspection-equipment-card";
+import { InspectionEquipmentSummaryCard } from "@/features/inspection/components/inspection-equipment-summary-card";
+import { InspectionActionsToolbar } from "@/features/inspection/components/inspection-actions-toolbar";
+
+function ToolbarSkeleton() {
+  return <Skeleton className="h-9 w-full rounded-lg" />;
+}
 
 function HeaderSkeleton() {
-  return <Skeleton className="h-32 w-full rounded-xl" />;
+  return <Skeleton className="h-32 w-full rounded-2xl" />;
+}
+
+function SummarySkeleton() {
+  return <Skeleton className="h-56 w-full rounded-2xl" />;
 }
 
 function EquipmentListSkeleton() {
@@ -30,23 +40,50 @@ function EquipmentListSkeleton() {
 
 export default async function InspectionDetailPage({
   params,
-}: PageProps<"/dashboard/cities/[cityId]/plants/[plantId]/inspections/[inspectionId]">) {
-  const { inspectionId } = await params;
+}: PageProps<"/dashboard/cities/[cityId]/inspections/[inspectionId]">) {
+  const { cityId, inspectionId } = await params;
   const id = Number(inspectionId);
 
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   return (
-    <div className="flex flex-col gap-6 px-4 py-6">
+    <div className="flex flex-col gap-6">
+      <Suspense fallback={<ToolbarSkeleton />}>
+        <ToolbarSection inspectionId={id} cityId={cityId} />
+      </Suspense>
+
       <Suspense fallback={<HeaderSkeleton />}>
         <HeaderSection inspectionId={id} />
       </Suspense>
 
-      <Suspense fallback={<EquipmentListSkeleton />}>
-        <EquipmentListSection inspectionId={id} />
-      </Suspense>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2 space-y-3">
+          <Suspense fallback={<EquipmentListSkeleton />}>
+            <EquipmentListSection inspectionId={id} />
+          </Suspense>
+        </div>
+
+        <div className="lg:col-span-1 lg:sticky lg:top-18">
+          <Suspense fallback={<SummarySkeleton />}>
+            <SummarySection inspectionId={id} />
+          </Suspense>
+        </div>
+      </div>
     </div>
   );
+}
+
+async function ToolbarSection({
+  inspectionId,
+  cityId,
+}: {
+  inspectionId: number;
+  cityId: string;
+}) {
+  const inspection = await getInspectionDetail(inspectionId);
+  if (!inspection) notFound();
+
+  return <InspectionActionsToolbar inspection={inspection} cityId={cityId} />;
 }
 
 async function HeaderSection({ inspectionId }: { inspectionId: number }) {
@@ -54,6 +91,13 @@ async function HeaderSection({ inspectionId }: { inspectionId: number }) {
   if (!inspection) notFound();
 
   return <InspectionHeaderCard inspection={inspection} />;
+}
+
+async function SummarySection({ inspectionId }: { inspectionId: number }) {
+  const inspection = await getInspectionDetail(inspectionId);
+  if (!inspection) notFound();
+
+  return <InspectionEquipmentSummaryCard equipments={inspection.equipments} />;
 }
 
 async function EquipmentListSection({
@@ -81,10 +125,10 @@ async function EquipmentListSection({
   }
 
   return (
-    <div className="space-y-3">
+    <>
       {inspection.equipments.map((entry) => (
         <InspectionEquipmentCard key={entry.id} entry={entry} />
       ))}
-    </div>
+    </>
   );
 }

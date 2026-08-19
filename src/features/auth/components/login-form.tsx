@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Field,
   FieldDescription,
@@ -23,6 +24,7 @@ import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import { useSyncExternalStore } from "react";
 
 export function LoginForm({
   className,
@@ -48,8 +50,12 @@ export function LoginForm({
       });
     },
   });
-  const lastMethod = authClient.getLastUsedLoginMethod();
-  console.log(lastMethod);
+
+  const lastMethod = useSyncExternalStore(
+    () => () => {}, // no subscription needed, it's a static read
+    () => authClient.getLastUsedLoginMethod(), // client snapshot
+    () => null, // server snapshot
+  );
 
   return (
     <form
@@ -116,31 +122,51 @@ export function LoginForm({
                 type="password"
                 autoComplete="current-password webauthn"
                 className="bg-background"
-                placeholder="*********"
+                placeholder="password"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
 
-        <Field>
-          <Button type="submit" disabled={isSubmitting}>
+        <Field className="relative">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className={cn(lastMethod === "email" && " ring-4 ring-primary/30")}
+          >
             {isSubmitting && <Spinner />}
             Login
           </Button>
+          {lastMethod === "email" && (
+            <Badge className="inline-flex max-w-18 items-center gap-1 justify-center rounded-full text-xs  px-[5.5px] py-[3px] border border-brand-500 absolute -right-4 -top-3 shadow-sm z-10 pointer-events-none">
+              Last used
+            </Badge>
+          )}
         </Field>
         <FieldSeparator>Or</FieldSeparator>
-        <Field>
+        <Field className="relative">
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className={cn(
+              lastMethod === "passkey" &&
+                " ring-4 ring-background dark:ring-input/30",
+            )}
             onClick={() => mutate({})}
             disabled={isPending}
           >
             {isPending ? <Spinner /> : <Fingerprint className="size-4" />}
             Sign in with a passkey
           </Button>
+          {lastMethod === "passkey" && (
+            <Badge
+              variant={"outline"}
+              className="inline-flex max-w-18 items-center gap-1 justify-center rounded-full text-xs  px-[5.5px] py-[3px] border absolute backdrop-blur-3xl -right-4 -top-3 shadow-sm z-10 text-foreground pointer-events-none"
+            >
+              Last used
+            </Badge>
+          )}
         </Field>
       </FieldGroup>
       <FieldDescription className="px-6 text-center">

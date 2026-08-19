@@ -140,7 +140,7 @@ export function WorkshopsOverviewTable({
                       `/dashboard/cities/${cityId}/plants/${row.original.plantId}/workshops`,
                     )
                   }
-                  className="h-11 cursor-pointer hover:bg-muted/50 even:bg-card"
+                  className="h-11 cursor-pointer hover:bg-muted/50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

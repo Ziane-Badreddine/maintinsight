@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   useTable,
   type ColumnFiltersState,
@@ -35,19 +34,17 @@ import { features } from "@/features/dashboard/components/data-table-features";
 import { DataTableViewOptions } from "@/features/dashboard/components/data-table-view-options";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { PlantInspectionRow } from "../actions/plant-inspections";
+import { CityInspectionRow } from "@/features/inspection/actions/city-inspections";
+
+type InspectionRow = PlantInspectionRow | CityInspectionRow;
 
 interface InspectionsDataTableProps {
-  data: PlantInspectionRow[];
+  data: InspectionRow[];
   cityId: number;
-  plantId: number;
+  plantId?: number; // absent = contexte city, chaque ligne fournit le sien
 }
 
-export function InspectionsDataTable({
-  data,
-  cityId,
-  plantId,
-}: InspectionsDataTableProps) {
-  const router = useRouter();
+export function InspectionsDataTable({ data }: InspectionsDataTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
     useState<ColumnVisibilityState>({});
@@ -71,22 +68,24 @@ export function InspectionsDataTable({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <InputGroup className="md:w-64">
-          <InputGroupInput
-            placeholder="Search by reference…"
-            value={
-              (table.getColumn("reference")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(e) =>
-              table.getColumn("reference")?.setFilterValue(e.target.value)
-            }
-          />
-          <InputGroupAddon>
-            <SearchIcon />
-          </InputGroupAddon>
-        </InputGroup>
+        <div className="flex items-center gap-2">
+          <InputGroup className="md:w-64">
+            <InputGroupInput
+              placeholder="Search by reference…"
+              value={
+                (table.getColumn("reference")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(e) =>
+                table.getColumn("reference")?.setFilterValue(e.target.value)
+              }
+            />
+            <InputGroupAddon>
+              <SearchIcon />
+            </InputGroupAddon>
+          </InputGroup>
 
-        <DataTableViewOptions table={table} />
+          <DataTableViewOptions table={table} />
+        </div>
       </div>
 
       {rows.length === 0 ? (
@@ -97,7 +96,7 @@ export function InspectionsDataTable({
             </EmptyMedia>
             <EmptyTitle>No inspections found</EmptyTitle>
             <EmptyDescription>
-              No inspection campaigns have been recorded for this plant yet.
+              No inspection campaigns have been recorded yet.
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -118,23 +117,20 @@ export function InspectionsDataTable({
               ))}
             </TableHeader>
             <TableBody className="tabular-nums">
-              {rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/cities/${cityId}/plants/${plantId}/inspections/${row.original.id}`,
-                    )
-                  }
-                  className="h-11 cursor-pointer hover:bg-muted/50 even:bg-card"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      <table.FlexRender cell={cell} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {rows.map((row) => {
+                return (
+                  <TableRow
+                    key={row.id}
+                    className="h-11 cursor-pointer hover:bg-muted/50 "
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        <table.FlexRender cell={cell} />
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
           <ScrollBar orientation="horizontal" />

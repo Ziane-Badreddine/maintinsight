@@ -121,7 +121,7 @@ export function EquipmentDataTable({ data, cityId }: EquipmentDataTableProps) {
 
             <TableBody>
               {rows.map((row) => (
-                <TableRow key={row.id} className="h-11 even:bg-card">
+                <TableRow key={row.id} className="h-11 ">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       <table.FlexRender cell={cell} />

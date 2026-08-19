@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { MeasurementType } from "../../../../../../prisma/generated/prisma/enums";
 
 import {
-  getCityHeaderInfo,
   getCityOverview,
   getCityStatusHistory,
   getPlantsOverview,
@@ -26,9 +25,6 @@ import { loadEquipmentStatusOverviewSearchParams } from "@/features/global/searc
 
 import { DashboardGrid } from "@/features/global/components/dashboard-grid";
 
-import { CityHeader } from "@/features/global/components/city-header";
-import { CityHeaderSkeleton } from "@/features/global/components/city-header-skeleton";
-
 import { OverviewStatCards } from "@/features/global/components/overview-stat-cards";
 import { StatusSummaryCards } from "@/features/global/components/status-summary-cards";
 import { EquipmentStatusChart } from "@/features/global/components/equipment-status-pie-chart";
@@ -45,6 +41,10 @@ import { PlantsOverviewTable } from "@/features/global/components/plants-overvie
 import { Skeleton } from "@/components/ui/skeleton";
 import { WorkshopsOverviewTable } from "@/features/global/components/workshops-overview-table";
 import { loadWorkshopsOverviewSearchParams } from "@/features/global/search-params/workshops-overview";
+// add these imports
+import { getCityAlarmsOverview } from "@/features/global/server/city-alarms-overview";
+import { loadAlarmsOverviewSearchParams } from "@/features/global/search-params/alarms-overview";
+import { AlarmsOverviewTable } from "@/features/global/components/alarms-overview-table";
 
 /* -------------------------------------------------------------------------- */
 /*                                  CACHING                                   */
@@ -131,6 +131,29 @@ function TableSkeleton() {
   );
 }
 
+function AlarmsTableSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-6 w-48" />
+
+      <div className="rounded-xl border">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 border-b p-4 last:border-b-0"
+          >
+            <Skeleton className="h-5 flex-1" />
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-5 w-24" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*                              PAGE COMPONENT                                */
 /* -------------------------------------------------------------------------- */
@@ -145,11 +168,13 @@ export default async function CityDashboardPage({
     { measurementType },
     { equipmentPlantId },
     { workshopPlantId },
+    { alarmPlantId },
   ] = await Promise.all([
     loadStatusHistorySearchParams(searchParams),
     loadMeasurementTrendSearchParams(searchParams),
     loadEquipmentStatusOverviewSearchParams(searchParams),
-    loadWorkshopsOverviewSearchParams(searchParams), // ← ajouté
+    loadWorkshopsOverviewSearchParams(searchParams),
+    loadAlarmsOverviewSearchParams(searchParams),
   ]);
 
   const id = Number(cityId);
@@ -160,34 +185,14 @@ export default async function CityDashboardPage({
 
   return (
     <div className="flex flex-col">
-      {/* ------------------------------------------------------------------ */}
-      {/* CITY HEADER                                                        */}
-      {/* ------------------------------------------------------------------ */}
-
-      <Suspense fallback={<CityHeaderSkeleton />}>
-        <CityHeaderSection cityId={id} />
-      </Suspense>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* DASHBOARD                                                          */}
-      {/* ------------------------------------------------------------------ */}
-
-      <div className="px-4 py-6">
+      <div className="">
         <DashboardGrid
           widgets={{
-            /* ------------------------------------------------------------ */
-            /* STAT CARDS                                                    */
-            /* ------------------------------------------------------------ */
-
             "stat-cards": (
               <Suspense fallback={<StatCardsSkeleton />}>
                 <StatCardsSection cityId={id} />
               </Suspense>
             ),
-
-            /* ------------------------------------------------------------ */
-            /* STATUS SUMMARY                                                */
-            /* ------------------------------------------------------------ */
 
             "status-summary": (
               <Suspense fallback={<StatusSummarySkeleton />}>
@@ -195,19 +200,11 @@ export default async function CityDashboardPage({
               </Suspense>
             ),
 
-            /* ------------------------------------------------------------ */
-            /* EQUIPMENT BY PLANT                                            */
-            /* ------------------------------------------------------------ */
-
             "equipment-by-plant": (
               <Suspense fallback={<ChartSkeleton />}>
                 <EquipmentByPlantSection cityId={id} />
               </Suspense>
             ),
-
-            /* ------------------------------------------------------------ */
-            /* EQUIPMENT STATUS                                              */
-            /* ------------------------------------------------------------ */
 
             "equipment-status-chart": (
               <Suspense fallback={<ChartSkeleton />}>
@@ -215,29 +212,22 @@ export default async function CityDashboardPage({
               </Suspense>
             ),
 
-            /* ------------------------------------------------------------ */
-            /* CITY SUMMARY TABLE                                            */
-            /* ------------------------------------------------------------ */
-
             "city-summary-table": (
               <Suspense fallback={<TableSkeleton />}>
                 <CitySummarySection cityId={id} />
               </Suspense>
             ),
 
-            /* ------------------------------------------------------------ */
-            /* ATTENTION                                                     */
-            /* ------------------------------------------------------------ */
-
             "city-attention-cards": (
               <Suspense fallback={<AttentionCardsSkeleton />}>
                 <CityAttentionSection cityId={id} />
               </Suspense>
             ),
-
-            /* ------------------------------------------------------------ */
-            /* STATUS HISTORY                                                */
-            /* ------------------------------------------------------------ */
+            "alarms-overview": (
+              <Suspense fallback={<AlarmsTableSkeleton />}>
+                <AlarmsOverviewSection cityId={id} plantId={alarmPlantId} />
+              </Suspense>
+            ),
 
             "status-history-chart": (
               <Suspense fallback={<ChartSkeleton />}>
@@ -245,29 +235,17 @@ export default async function CityDashboardPage({
               </Suspense>
             ),
 
-            /* ------------------------------------------------------------ */
-            /* INSPECTION COVERAGE                                           */
-            /* ------------------------------------------------------------ */
-
             "inspection-coverage": (
               <Suspense fallback={<CardSkeleton />}>
                 <InspectionCoverageSection cityId={id} />
               </Suspense>
             ),
 
-            /* ------------------------------------------------------------ */
-            /* MEASUREMENT BREAKDOWN                                         */
-            /* ------------------------------------------------------------ */
-
             "measurement-breakdown": (
               <Suspense fallback={<ChartSkeleton />}>
                 <MeasurementBreakdownSection cityId={id} />
               </Suspense>
             ),
-
-            /* ------------------------------------------------------------ */
-            /* MEASUREMENT TREND                                              */
-            /* ------------------------------------------------------------ */
 
             "measurement-trend": (
               <Suspense fallback={<ChartSkeleton />}>
@@ -278,10 +256,6 @@ export default async function CityDashboardPage({
               </Suspense>
             ),
 
-            /* ------------------------------------------------------------ */
-            /* EQUIPMENT OVERVIEW                                             */
-            /* ------------------------------------------------------------ */
-
             "equipment-status-overview": (
               <Suspense fallback={<TableSkeleton />}>
                 <EquipmentOverviewSection
@@ -290,10 +264,6 @@ export default async function CityDashboardPage({
                 />
               </Suspense>
             ),
-
-            /* ------------------------------------------------------------ */
-            /* PLANTS OVERVIEW                                                */
-            /* ------------------------------------------------------------ */
 
             "plants-overview": (
               <Suspense fallback={<TableSkeleton />}>
@@ -316,24 +286,6 @@ export default async function CityDashboardPage({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                              HEADER SECTION                                */
-/* -------------------------------------------------------------------------- */
-
-async function CityHeaderSection({ cityId }: { cityId: number }) {
-  const city = await getCityHeaderInfo(cityId);
-
-  if (!city) {
-    notFound();
-  }
-
-  return <CityHeader cityId={cityId} plants={city.plants} />;
-}
-
-/* -------------------------------------------------------------------------- */
-/*                              STAT CARDS                                    */
-/* -------------------------------------------------------------------------- */
-
 async function StatCardsSection({ cityId }: { cityId: number }) {
   const data = await getCityOverviewCached(cityId);
 
@@ -343,10 +295,6 @@ async function StatCardsSection({ cityId }: { cityId: number }) {
 
   return <OverviewStatCards cityName={data.city.name} totals={data.totals} />;
 }
-
-/* -------------------------------------------------------------------------- */
-/*                            STATUS SUMMARY                                  */
-/* -------------------------------------------------------------------------- */
 
 async function StatusSummarySection({ cityId }: { cityId: number }) {
   const data = await getCityOverviewCached(cityId);
@@ -358,10 +306,6 @@ async function StatusSummarySection({ cityId }: { cityId: number }) {
   return <StatusSummaryCards statusCounts={data.statusCounts} />;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                           EQUIPMENT BY PLANT                               */
-/* -------------------------------------------------------------------------- */
-
 async function EquipmentByPlantSection({ cityId }: { cityId: number }) {
   const data = await getCityOverviewCached(cityId);
 
@@ -371,10 +315,6 @@ async function EquipmentByPlantSection({ cityId }: { cityId: number }) {
 
   return <EquipmentByPlantChart data={data.equipmentByPlant} />;
 }
-
-/* -------------------------------------------------------------------------- */
-/*                           EQUIPMENT STATUS                                 */
-/* -------------------------------------------------------------------------- */
 
 async function EquipmentStatusSection({ cityId }: { cityId: number }) {
   const data = await getCityOverviewCached(cityId);
@@ -386,10 +326,6 @@ async function EquipmentStatusSection({ cityId }: { cityId: number }) {
   return <EquipmentStatusChart statusCounts={data.statusCounts} />;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                           CITY SUMMARY                                     */
-/* -------------------------------------------------------------------------- */
-
 async function CitySummarySection({ cityId }: { cityId: number }) {
   const data = await getCityOverviewCached(cityId);
 
@@ -399,10 +335,6 @@ async function CitySummarySection({ cityId }: { cityId: number }) {
 
   return <CitySummaryTable rows={data.equipmentByPlant} cityId={cityId} />;
 }
-
-/* -------------------------------------------------------------------------- */
-/*                           ATTENTION CARDS                                  */
-/* -------------------------------------------------------------------------- */
 
 async function CityAttentionSection({ cityId }: { cityId: number }) {
   const data = await getCityOverviewCached(cityId);
@@ -418,10 +350,6 @@ async function CityAttentionSection({ cityId }: { cityId: number }) {
     />
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/*                           STATUS HISTORY                                   */
-/* -------------------------------------------------------------------------- */
 
 async function StatusHistorySection({
   cityId,
@@ -443,10 +371,6 @@ async function StatusHistorySection({
   return <EquipmentStatusHistoryChart data={history} />;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                         INSPECTION COVERAGE                                */
-/* -------------------------------------------------------------------------- */
-
 async function InspectionCoverageSection({ cityId }: { cityId: number }) {
   const coverage = await getCityInspectionCoverage(cityId, {
     staleDays: 30,
@@ -455,19 +379,11 @@ async function InspectionCoverageSection({ cityId }: { cityId: number }) {
   return <CityInspectionCoverageCard coverage={coverage} />;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                         MEASUREMENT BREAKDOWN                              */
-/* -------------------------------------------------------------------------- */
-
 async function MeasurementBreakdownSection({ cityId }: { cityId: number }) {
   const data = await getMeasurementTypeBreakdown(cityId);
 
   return <MeasurementTypeBreakdownChart data={data} />;
 }
-
-/* -------------------------------------------------------------------------- */
-/*                           MEASUREMENT TREND                                */
-/* -------------------------------------------------------------------------- */
 
 async function MeasurementTrendSection({
   cityId,
@@ -484,10 +400,6 @@ async function MeasurementTrendSection({
   return <MeasurementTrendChart data={data} />;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                        EQUIPMENT OVERVIEW                                  */
-/* -------------------------------------------------------------------------- */
-
 async function EquipmentOverviewSection({
   cityId,
   plantId,
@@ -499,10 +411,6 @@ async function EquipmentOverviewSection({
 
   return <EquipmentDataTable data={data} cityId={String(cityId)} />;
 }
-
-/* -------------------------------------------------------------------------- */
-/*                           PLANTS OVERVIEW                                   */
-/* -------------------------------------------------------------------------- */
 
 async function PlantsOverviewSection({ cityId }: { cityId: number }) {
   const data = await getPlantsOverview(cityId);
@@ -520,4 +428,17 @@ async function WorkshopsOverviewSection({
   const data = await getWorkshopsOverview(cityId, plantId);
 
   return <WorkshopsOverviewTable data={data} cityId={cityId} />;
+}
+
+async function AlarmsOverviewSection({
+  cityId,
+  plantId,
+}: {
+  cityId: number;
+  plantId: number | null;
+}) {
+  const data = await getCityAlarmsOverview(cityId, plantId);
+  console.log(data);
+
+  return <AlarmsOverviewTable data={data} />;
 }

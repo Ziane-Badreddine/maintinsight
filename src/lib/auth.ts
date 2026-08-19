@@ -9,6 +9,7 @@ import { ac, admin, manager, inspector, viewer } from "./permissions";
 import {
   sendChangeEmailConfirmation,
   sendDeleteAccountVerification,
+  sendForgotPasswordEmail,
   sendVerificationEmail,
 } from "./email";
 import { passkey } from "@better-auth/passkey";
@@ -28,6 +29,7 @@ export const auth = betterAuth({
         }),
       );
     },
+
     sendOnSignIn: true,
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
@@ -37,7 +39,6 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        console.log(url);
         after(() =>
           sendChangeEmailConfirmation({
             to: user.email,
@@ -72,6 +73,19 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      after(() =>
+        sendForgotPasswordEmail({
+          to: user.email,
+          userName: user.name ?? "there",
+          resetUrl: url,
+        }),
+      );
+    },
+    onPasswordReset: async ({ user }) => {
+      // your logic here
+      console.log(`Password for user ${user.email} has been reset.`);
+    },
   },
 
   plugins: [

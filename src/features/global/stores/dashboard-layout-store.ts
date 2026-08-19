@@ -17,6 +17,7 @@ interface DashboardLayoutState {
   toggleWidget: (id: DashboardWidgetId) => void;
   toggleEditMode: () => void;
   resetLayout: () => void;
+  setEditMode: (value: boolean) => void;
   setHasHydrated: (state: boolean) => void;
 }
 
@@ -37,6 +38,10 @@ export const useDashboardLayoutStore = create<DashboardLayoutState>()(
       toggleEditMode: () => set((s) => ({ isEditMode: !s.isEditMode })),
       resetLayout: () => set({ order: DEFAULT_WIDGET_ORDER, hidden: [] }),
       setHasHydrated: (state) => set({ hasHydrated: state }),
+      setEditMode: (value) =>
+        set({
+          isEditMode: value,
+        }),
     }),
     {
       name: "dashboard-layout",

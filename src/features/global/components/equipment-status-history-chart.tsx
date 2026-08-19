@@ -23,6 +23,7 @@ import {
   STATUS_DISPLAY_ORDER,
 } from "../constants/equipment-status";
 import { StatusHistoryDateRangePicker } from "./status-history-date-range-picker";
+import { EquipmentStatus } from "../../../../prisma/generated/prisma/enums";
 
 interface EquipmentStatusHistoryChartProps {
   data: StatusHistoryPoint[];
@@ -55,8 +56,8 @@ export function EquipmentStatusHistoryChart({
         : `${data[0].label} - ${data[data.length - 1].label}`;
 
   return (
-    <Card className="col-span-2">
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+    <Card className="col-span-2 pt-0">
+      <CardHeader className="flex flex-row items-start justify-between gap-4 border-b bg-muted pt-4">
         <div>
           <CardTitle>Status history</CardTitle>
           <CardDescription>
@@ -114,7 +115,12 @@ export function EquipmentStatusHistoryChart({
                 fill={`url(#fill-${status})`}
               />
             ))}
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend
+              content={<ChartLegendContent />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
           </AreaChart>
         </ChartContainer>
       </CardContent>

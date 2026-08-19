@@ -5,12 +5,23 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useHotkey } from "@tanstack/react-hotkeys";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Kbd } from "@/components/ui/kbd";
 
 export function RefreshButton() {
   const [isPending, startTransition] = useTransition();
   const [spinning, setSpinning] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  useHotkey("R", () => {
+    handleRefresh();
+  });
 
   function handleRefresh() {
     setSpinning(true);
@@ -23,17 +34,27 @@ export function RefreshButton() {
   }
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleRefresh}
-      disabled={isPending}
-      aria-label="Refresh"
-    >
-      <RefreshCwIcon
-        className={`size-4 ${isPending || spinning ? "animate-spin" : ""}`}
-        onAnimationIteration={() => isPending || setSpinning(false)}
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleRefresh}
+            disabled={isPending}
+            aria-label="Refresh"
+            className={"rounded-full"}
+          >
+            <RefreshCwIcon
+              className={`size-4 ${isPending || spinning ? "animate-spin" : ""}`}
+              onAnimationIteration={() => isPending || setSpinning(false)}
+            />
+          </Button>
+        }
       />
-    </Button>
+      <TooltipContent>
+        Refresh <Kbd>R</Kbd>
+      </TooltipContent>
+    </Tooltip>
   );
 }

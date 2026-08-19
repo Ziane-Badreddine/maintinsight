@@ -52,8 +52,8 @@ export function EquipmentByPlantChart({ data }: EquipmentByPlantChartProps) {
   }));
 
   return (
-    <Card className="col-span-2">
-      <CardHeader>
+    <Card className="col-span-2 pt-0">
+      <CardHeader className="border-b bg-muted pt-4">
         <CardTitle>Equipment by plant</CardTitle>
         <CardDescription>
           {top.length} plants, broken down by current equipment status
@@ -101,7 +101,12 @@ export function EquipmentByPlantChart({ data }: EquipmentByPlantChartProps) {
                 />
               );
             })}
-            <ChartLegend content={<ChartLegendContent />} />
+            <ChartLegend
+              content={<ChartLegendContent />}
+              itemSorter={(item) =>
+                STATUS_DISPLAY_ORDER.indexOf(item.dataKey as EquipmentStatus)
+              }
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>

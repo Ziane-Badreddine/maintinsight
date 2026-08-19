@@ -23,8 +23,8 @@ export function StatusDonutChart({ statusCounts }: StatusDonutChartProps) {
   }));
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className=" pt-0">
+      <CardHeader className="border-b bg-muted pt-4">
         <CardTitle>Status distribution</CardTitle>
       </CardHeader>
       <CardContent>

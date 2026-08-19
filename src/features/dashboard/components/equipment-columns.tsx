@@ -63,7 +63,7 @@ export function EquipmentLink({
   return (
     <Link
       href={{
-        pathname: `/dashboard/cities/${params.cityId}/plants/${params.plantId}/${segment}/${id}`,
+        pathname: `/dashboard/cities/${params.cityId}/${segment}/${id}`,
       }}
       className="font-medium hover:underline"
     >

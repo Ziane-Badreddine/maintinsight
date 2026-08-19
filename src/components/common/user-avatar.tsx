@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { BookLock, Laptop, Loader2, LogOut, Moon, Sun } from "lucide-react";
+import { Laptop, LogOut, Moon, Settings, Sun, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,23 +22,32 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 import { SettingsDialog } from "@/features/auth/components/settings-dialog";
+import { Spinner } from "../ui/spinner";
+import { useHotkey } from "@tanstack/react-hotkeys";
 
 export default function UserAvatar() {
   const { data: session, isPending } = authClient.useSession();
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const router = useRouter();
 
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [isLoggingOut, startLogoutTransition] = React.useTransition();
 
-  const handleLogout = async () => {
-    await authClient.signOut();
-    router.refresh();
+  useHotkey("D", () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  });
+
+  const handleLogout = () => {
+    startLogoutTransition(async () => {
+      await authClient.signOut();
+      router.refresh();
+    });
   };
 
   if (isPending) {
     return (
-      <Button variant="ghost" size="icon" disabled>
-        <Loader2 className="size-4 animate-spin" />
+      <Button variant="outline" size="icon" className="relative rounded-full">
+        <Spinner />
       </Button>
     );
   }
@@ -53,7 +62,7 @@ export default function UserAvatar() {
         <DropdownMenuTrigger
           render={
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               className="relative rounded-full"
             >
@@ -62,8 +71,8 @@ export default function UserAvatar() {
                   src={session.user.image ?? "/avatar.png"}
                   alt={session.user.name ?? "User"}
                 />
-                <AvatarFallback>
-                  {session.user.name?.charAt(0).toUpperCase() ?? "U"}
+                <AvatarFallback className={"bg-foreground"}>
+                  <User className="text-primary-foreground size-4.5" />
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -86,7 +95,7 @@ export default function UserAvatar() {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
-              <BookLock className="size-4" />
+              <Settings className="size-4" />
               <span>Settings</span>
             </DropdownMenuItem>
 
@@ -116,8 +125,16 @@ export default function UserAvatar() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut className="size-4" />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              closeOnClick={false}
+            >
+              {isLoggingOut ? (
+                <Spinner className="size-4" />
+              ) : (
+                <LogOut className="size-4" />
+              )}
               <span>Log out</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
