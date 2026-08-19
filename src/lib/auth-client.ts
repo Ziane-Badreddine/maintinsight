@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/react";
-import { adminClient } from "better-auth/client/plugins";
+import { adminClient, magicLinkClient } from "better-auth/client/plugins";
 import { passkeyClient } from "@better-auth/passkey/client";
 import { lastLoginMethodClient } from "better-auth/client/plugins";
 
@@ -29,6 +29,7 @@ export const authClient = createAuthClient({
     }),
     passkeyClient(),
     lastLoginMethodClient(),
+    magicLinkClient(),
   ],
 });
 

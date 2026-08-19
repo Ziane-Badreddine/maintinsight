@@ -13,6 +13,7 @@ import {
   sendVerificationEmail,
 } from "./email";
 import { passkey } from "@better-auth/passkey";
+import { magicLink } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -73,6 +74,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    disableSignUp: true,
+
     sendResetPassword: async ({ user, url }) => {
       after(() =>
         sendForgotPasswordEmail({
@@ -93,8 +96,14 @@ export const auth = betterAuth({
       ac,
       roles: { admin, manager, inspector, viewer },
       defaultRole: "viewer",
+      adminRoles: ["admin"],
     }),
     passkey(),
     lastLoginMethod(),
+    magicLink({
+      sendMagicLink: async ({ email, token, url, metadata }, ctx) => {
+        // send email to user
+      },
+    }),
   ],
 });
