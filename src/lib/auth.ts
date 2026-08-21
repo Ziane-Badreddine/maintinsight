@@ -104,15 +104,11 @@ export const auth = betterAuth({
     lastLoginMethod(),
     magicLink({
       expiresIn: 60 * 60 * 24,
-
       sendMagicLink: async ({ email, url, metadata }) => {
         if (metadata?.type === "invite") {
           after(() =>
             sendInviteEmail({
               to: email,
-              userName: metadata.name ?? email,
-              inviterName: metadata.inviterName,
-              role: metadata.role,
               inviteUrl: url,
             }),
           );

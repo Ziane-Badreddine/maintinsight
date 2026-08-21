@@ -33,9 +33,6 @@ interface SendForgotPasswordEmailParams {
 
 interface SendInviteEmailParams {
   to: string;
-  userName: string;
-  inviterName?: string;
-  role: string;
   inviteUrl: string;
 }
 
@@ -119,16 +116,13 @@ export async function sendForgotPasswordEmail({
 
 export async function sendInviteEmail({
   to,
-  userName,
-  inviterName,
-  role,
   inviteUrl,
 }: SendInviteEmailParams) {
   const { error } = await resend.emails.send({
     from: EMAIL_FROM,
     to,
     subject: "You've been invited to MaintInsight",
-    react: InviteUserEmail({ userName, inviterName, role, inviteUrl }),
+    react: InviteUserEmail({ inviteUrl }),
   });
 
   if (error) {

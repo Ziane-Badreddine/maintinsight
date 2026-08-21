@@ -1,57 +1,35 @@
 import { Button, Heading, Text } from "@react-email/components";
+
 import { EmailLayout } from "../components/email-layout";
 import { emailColors } from "../components/colors";
 
 interface InviteUserEmailProps {
-  userName: string;
-  inviterName?: string;
-  role: string;
   inviteUrl: string;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  viewer: "Viewer",
-  inspector: "Inspector",
-  manager: "Manager",
-  admin: "Admin",
-};
-
-export default function InviteUserEmail({
-  userName,
-  inviterName,
-  role,
-  inviteUrl,
-}: InviteUserEmailProps) {
-  const roleLabel = ROLE_LABELS[role] ?? role;
-
+export default function InviteUserEmail({ inviteUrl }: InviteUserEmailProps) {
   return (
     <EmailLayout preview="You've been invited to MaintInsight">
       <Heading style={heading}>You&apos;re invited</Heading>
-      <Text style={text}>Hi {userName},</Text>
+
+      <Text style={text}>You&apos;ve been invited to join MaintInsight.</Text>
+
       <Text style={text}>
-        {inviterName ? (
-          <>
-            <strong style={{ color: emailColors.foreground }}>
-              {inviterName}
-            </strong>{" "}
-            has invited you
-          </>
-        ) : (
-          "You've been invited"
-        )}{" "}
-        to join MaintInsight as{" "}
-        <strong style={{ color: emailColors.primary }}>{roleLabel}</strong>.
+        Click the button below to accept your invitation and create your
+        account. You&apos;ll be able to set up your password and complete your
+        profile during onboarding.
       </Text>
-      <Text style={text}>
-        Click the button below to accept the invitation and set up your account.
-        This link expires in 24 hours.
-      </Text>
+
       <Button style={button} href={inviteUrl}>
         Accept invitation
       </Button>
+
+      <Text style={smallText}>This invitation link expires in 24 hours.</Text>
+
       <Text style={smallText}>
         Or copy and paste this link into your browser:
       </Text>
+
       <Text style={linkText}>{inviteUrl}</Text>
     </EmailLayout>
   );
@@ -87,7 +65,8 @@ const button = {
 const smallText = {
   fontSize: "12px",
   color: emailColors.mutedForeground,
-  marginBottom: "4px",
+  lineHeight: "18px",
+  marginBottom: "8px",
 };
 
 const linkText = {
