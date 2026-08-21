@@ -13,6 +13,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  const hasCompletedOnboarding = Boolean(session.user.name?.trim());
+
+  if (!hasCompletedOnboarding && request.nextUrl.pathname !== "/onboarding") {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
+  if (hasCompletedOnboarding && request.nextUrl.pathname === "/onboarding") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   const roles = session.user.role?.split(",") ?? [];
 
   if (
@@ -26,5 +36,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/admin/:path*", "/onboarding"],
 };
