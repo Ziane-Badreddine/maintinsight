@@ -33,6 +33,13 @@ import { features } from "@/features/dashboard/components/data-table-features";
 import { DataTableViewOptions } from "@/features/dashboard/components/data-table-view-options";
 import { NewPlantSheet } from "./new-plant-sheet";
 import { Button } from "@/components/ui/button";
+import { authClient, Permissions, Role } from "@/lib/auth-client";
+
+// type CheckRolePermissionArgs = Parameters<
+//   typeof authClient.admin.checkRolePermission
+// >[0];
+// type Role = CheckRolePermissionArgs["role"];
+// type Permissions = CheckRolePermissionArgs["permissions"];
 
 interface PlantsDataTableProps {
   data: PlantRow[];
@@ -47,6 +54,26 @@ export function PlantsDataTable({ data }: PlantsDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "healthRate", desc: false },
   ]);
+
+  const { data: session, isPending: isSessionPending } =
+    authClient.useSession();
+
+  const roles = (session?.user?.role?.split(",") ?? []) as Role[];
+
+  function hasPermission(permissions: Permissions) {
+    if (isSessionPending) return false;
+
+    return roles.some((role) =>
+      authClient.admin.checkRolePermission({
+        role,
+        permissions,
+      }),
+    );
+  }
+
+  const canCreatePlant = hasPermission({
+    plant: ["create"],
+  } satisfies Permissions);
 
   const columns = useMemo(() => createPlantColumns(), []);
 
@@ -81,14 +108,16 @@ export function PlantsDataTable({ data }: PlantsDataTableProps) {
           </InputGroup>
           <DataTableViewOptions table={table} />
         </div>
-        <Button
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          <Plus />
-          New plant
-        </Button>
+        {canCreatePlant && (
+          <Button
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            <Plus />
+            New plant
+          </Button>
+        )}
       </div>
 
       {rows.length === 0 ? (
@@ -140,11 +169,13 @@ export function PlantsDataTable({ data }: PlantsDataTableProps) {
         </div>
       )}
 
-      <NewPlantSheet
-        cityId={Number(params.cityId)}
-        open={open}
-        onOpenChange={setOpen}
-      />
+      {canCreatePlant && (
+        <NewPlantSheet
+          cityId={Number(params.cityId)}
+          open={open}
+          onOpenChange={setOpen}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { StatCards } from "./stat-cards";
-import { StatusDonutChart } from "./status-donut-chart";
 import { WorkshopBarChart } from "./workshop-bar-chart";
 
 import { EquipmentDataTable } from "@/features/dashboard/components/equipment-data-table";
@@ -144,7 +143,6 @@ export async function PlantOverviewLoader({
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <StatusDonutChart statusCounts={statusCounts} />
         <WorkshopBarChart byWorkshop={byWorkshop} />
       </div>
 

@@ -21,6 +21,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -30,6 +31,7 @@ import {
   FieldLabel,
   FieldError,
   FieldDescription,
+  FieldGroup,
 } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +41,9 @@ import { X, Plus, Search, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUsersFilters } from "./searchParams";
 import { toast } from "@/components/ui/toast";
+import { RoleCombobox } from "./role-combobox";
+import { StatusCombobox } from "./status-combobox";
+import { InviteUserDialog } from "./invite-user-dialog";
 
 const createUserSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -102,7 +107,6 @@ export function UsersToolbar() {
               { limitUrlUpdates: debounce(300) },
             )
           }
-          disabled={isPending}
         />
         <InputGroupAddon>
           {isPending ? (
@@ -123,53 +127,14 @@ export function UsersToolbar() {
         </InputGroupAddon>
       </InputGroup>
 
-      {/* Role */}
-      <Select
-        value={role}
-        onValueChange={(v) =>
-          startTransition(async () => {
-            await setFilters({ role: v, page: 1 });
-          })
-        }
-        disabled={isPending}
-      >
-        <SelectTrigger className="h-9 w-32">
-          <SelectValue placeholder="Role" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All roles</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="manager">Manager</SelectItem>
-          <SelectItem value="inspector">Inspector</SelectItem>
-          <SelectItem value="viewer">Viewer</SelectItem>
-        </SelectContent>
-      </Select>
+      <RoleCombobox />
 
-      {/* Status */}
-      <Select
-        value={status}
-        onValueChange={(v) =>
-          startTransition(async () => {
-            await setFilters({ status: v, page: 1 });
-          })
-        }
-        disabled={isPending}
-      >
-        <SelectTrigger className="h-9 w-32">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All</SelectItem>
-          <SelectItem value="active">Active</SelectItem>
-          <SelectItem value="banned">Banned</SelectItem>
-        </SelectContent>
-      </Select>
+      <StatusCombobox />
 
       {/* Clear */}
       {hasFilters && (
         <Button
-          variant="outline"
-          className="h-9 px-2"
+          variant="secondary"
           disabled={isPending}
           onClick={() =>
             startTransition(async () => {
@@ -187,121 +152,130 @@ export function UsersToolbar() {
         </Button>
       )}
 
-      {/* Add User dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger
-          render={
-            <Button className="md:ml-auto">
-              <Plus className="size-4" />
-              Add user
-            </Button>
-          }
-        ></DialogTrigger>
+      <div className="flex items-center justify-end gap-2 ml-auto">
+        <InviteUserDialog />
 
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add user</DialogTitle>
-          </DialogHeader>
+        {/* Add User dialog */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger
+            render={
+              <Button className="md:ml-auto">
+                <Plus className="size-4" />
+                Add user
+              </Button>
+            }
+          ></DialogTrigger>
 
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
-            {/* Name */}
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="cu-name">Full name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="cu-name"
-                    placeholder="Fatima Zahra"
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add user</DialogTitle>
+            </DialogHeader>
+
+            <form
+              id="create-user-admin-form"
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 "
+            >
+              {/* Name */}
+              <FieldGroup>
+                <Controller
+                  name="name"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        placeholder="Badr"
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="off"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
                   )}
-                </Field>
-              )}
-            />
+                />
 
-            {/* Email */}
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="cu-email">Email</FieldLabel>
-                  <Input
-                    {...field}
-                    id="cu-email"
-                    type="email"
-                    placeholder="fatima@turathn.ma"
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+                {/* Email */}
+                <Controller
+                  name="email"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="email"
+                        placeholder="badr@turathn.ma"
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="off"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
                   )}
-                </Field>
-              )}
-            />
+                />
 
-            {/* Password */}
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="cu-password">Password</FieldLabel>
-                  <Input
-                    {...field}
-                    id="cu-password"
-                    type="password"
-                    placeholder="••••••••"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  <FieldDescription>Minimum 8 characters.</FieldDescription>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+                {/* Password */}
+                <Controller
+                  name="password"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <Input
+                        {...field}
+                        id={field.name}
+                        type="password"
+                        placeholder="••••••••"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      <FieldDescription>Minimum 8 characters.</FieldDescription>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
                   )}
-                </Field>
-              )}
-            />
+                />
 
-            {/* Role */}
-            <Controller
-              name="role"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="cu-role">Role</FieldLabel>
-                  <Select
-                    name={field.name}
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
-                    <SelectTrigger
-                      id="cu-role"
-                      aria-invalid={fieldState.invalid}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="viewer">Viewer</SelectItem>
-                      <SelectItem value="inspector">Inspector</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
+                {/* Role */}
+                <Controller
+                  name="role"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="cu-role">Role</FieldLabel>
+                      <Select
+                        name={field.name}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="cu-role"
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="viewer">Viewer</SelectItem>
+                          <SelectItem value="inspector">Inspector</SelectItem>
+                          <SelectItem value="manager">Manager</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
                   )}
-                </Field>
-              )}
-            />
-
-            <div className="flex justify-end gap-2 pt-2">
+                />
+              </FieldGroup>
+            </form>
+            <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
@@ -313,14 +287,19 @@ export function UsersToolbar() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isCreating}>
+
+              <Button
+                type="submit"
+                form="create-user-admin-form"
+                disabled={isCreating}
+              >
                 {isCreating && <Spinner className="size-4" />}
                 Create user
               </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

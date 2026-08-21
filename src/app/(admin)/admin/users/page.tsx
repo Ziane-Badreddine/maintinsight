@@ -33,10 +33,7 @@ export default async function AdminUsersPage({
       <UsersToolbar />
 
       {/* key change on every filter → Suspense re-mounts → streams skeleton then content */}
-      <Suspense
-        key={`${search}-${page}-${role}-${status}`}
-        fallback={<UsersTableSkeleton />}
-      >
+      <Suspense fallback={<UsersTableSkeleton />}>
         <UsersSection
           search={search}
           page={page}

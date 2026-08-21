@@ -8,7 +8,6 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
@@ -17,11 +16,11 @@ import {
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
-  ImageIcon,
   LifeBuoy,
   Send,
   ShieldUser,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -32,6 +31,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
 export const nav = {
   navMain: [
@@ -39,10 +39,10 @@ export const nav = {
 
     {
       title: "User Management",
-      icon: ShieldUser,
+      icon: MdOutlineAdminPanelSettings,
       items: [
-        { title: "Users", url: "/admin/users" },
-        { title: "Sessions", url: "/admin/sessions" },
+        { title: "Users", url: "/admin/users", icon: Users },
+        { title: "Sessions", url: "/admin/sessions", icon: ShieldUser },
       ],
     },
   ],
@@ -80,18 +80,20 @@ export function AdminSidebar() {
                     key={item.title}
                     render={
                       <SidebarMenuItem>
-                        {/* Main button */}
+                        {/* Main button
                         <SidebarMenuButton tooltip={item.title}>
                           <item.icon />
                           <span>{item.title}</span>
-                        </SidebarMenuButton>
+                        </SidebarMenuButton> */}
 
                         {/* Chevron */}
                         <CollapsibleTrigger
                           render={
-                            <SidebarMenuAction className="data-[state=open]:rotate-90">
-                              <ChevronRight />
-                            </SidebarMenuAction>
+                            <SidebarMenuButton tooltip={item.title}>
+                              <item.icon />
+                              <span>{item.title}</span>
+                              <ChevronRight className="ml-auto group-data-panel-open/menu-button:rotate-90 transition-transform duration-300" />
+                            </SidebarMenuButton>
                           }
                         ></CollapsibleTrigger>
 
@@ -103,6 +105,7 @@ export function AdminSidebar() {
                                 <SidebarMenuSubButton
                                   render={
                                     <Link href={sub.url as Route}>
+                                      <sub.icon />
                                       <span>{sub.title}</span>
                                     </Link>
                                   }

@@ -63,7 +63,7 @@ export function SiteHeader() {
   const lastCrumb = crumbs[crumbs.length - 1];
 
   return (
-    <header className="sticky top-0 z-50 flex w-full items-center border-b bg-sidebar">
+    <header className="sticky top-0 z-50 flex w-full items-center border-b h-[64.8px]">
       <div className="flex h-(--header-height) w-full items-center justify-between gap-2 px-4">
         {/* Left — logo + separator + breadcrumb */}
         <div className="flex items-center gap-2 md:gap-4">

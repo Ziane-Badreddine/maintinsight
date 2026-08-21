@@ -6,15 +6,19 @@ import { loginSchema, LoginSchema } from "../schemas/login-schema";
 
 import { toast } from "@/components/ui/toast";
 import { authClient } from "@/lib/auth-client";
+import { parseAsString, useQueryState } from "nuqs";
+import { Route } from "next";
 
 export function useLogin() {
   const router = useRouter();
+  const [redirect] = useQueryState("redirect", parseAsString);
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
@@ -22,7 +26,7 @@ export function useLogin() {
     await authClient.signIn.email({
       ...values,
       fetchOptions: {
-        onSuccess: () => router.push("/dashboard"),
+        onSuccess: () => router.push((redirect ?? "/dashboard") as Route),
         onError: (ctx) => {
           toast.add({
             type: "error",

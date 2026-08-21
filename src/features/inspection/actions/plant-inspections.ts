@@ -41,7 +41,7 @@ export async function getPlantEquipmentStatusOverview(
   const [totalInspections, equipmentEntries] = await Promise.all([
     prisma.inspection.count({
       where: {
-        performedById: session.user.id,
+        // performedById: session.user.id,
         equipments: { some: { equipment: { workshop: { plantId } } } },
       },
     }),
@@ -100,7 +100,7 @@ export async function getPlantInspections(
   }
   const inspections = await prisma.inspection.findMany({
     where: {
-      performedById: session.user.id,
+      // performedById: session.user.id,
       equipments: { some: { equipment: { workshop: { plantId } } } },
       ...(options.from || options.to
         ? {
@@ -195,7 +195,7 @@ export async function getPlantStatusHistory(
     where: {
       equipment: { workshop: { plantId } },
       inspection: {
-        performedById: session.user.id,
+        // performedById: session.user.id,
         inspectionDate: { gte: since, lte: until },
       },
     },

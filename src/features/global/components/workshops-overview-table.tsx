@@ -135,11 +135,6 @@ export function WorkshopsOverviewTable({
               {rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/cities/${cityId}/plants/${row.original.plantId}/workshops`,
-                    )
-                  }
                   className="h-11 cursor-pointer hover:bg-muted/50"
                 >
                   {row.getVisibleCells().map((cell) => (

@@ -1,4 +1,3 @@
-// src/features/dashboard/components/city-workshop-columns.tsx
 "use client";
 
 import { createColumnHelper } from "@tanstack/react-table";
@@ -6,8 +5,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { ChevronRightIcon } from "lucide-react";
 
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import { DataTableColumnHeader } from "@/features/dashboard/components/data-table-column-header";
@@ -26,28 +23,28 @@ export interface CityWorkshopRow {
 
 const columnHelper = createColumnHelper<DataTableFeatures, CityWorkshopRow>();
 
-function WorkshopLink({
-  plantId,
-  workshopId,
-  children,
-}: {
-  plantId: number;
-  workshopId: number;
-  children: React.ReactNode;
-}) {
-  const params = useParams<{ cityId: string }>();
-  return (
-    <Link
-      href={{
-        pathname: `/dashboard/cities/${params.cityId}/plants/${plantId}/workshops`,
-        query: { highlight: workshopId },
-      }}
-      className="font-medium hover:underline"
-    >
-      {children}
-    </Link>
-  );
-}
+// function WorkshopLink({
+//   plantId,
+//   workshopId,
+//   children,
+// }: {
+//   plantId: number;
+//   workshopId: number;
+//   children: React.ReactNode;
+// }) {
+//   const params = useParams<{ cityId: string }>();
+//   return (
+//     <Link
+//       href={{
+//         pathname: `/dashboard/cities/${params.cityId}/plants/${plantId}/workshops`,
+//         query: { highlight: workshopId },
+//       }}
+//       className="font-medium hover:underline"
+//     >
+//       {children}
+//     </Link>
+//   );
+// }
 
 function PlantLink({
   plantId,
@@ -104,12 +101,7 @@ export function createCityWorkshopColumns() {
       ),
       cell: ({ row }) => (
         <div>
-          <WorkshopLink
-            plantId={row.original.plantId}
-            workshopId={row.original.id}
-          >
-            {row.original.name}
-          </WorkshopLink>
+          {row.original.name}
           <div>
             <PlantLink plantId={row.original.plantId}>
               {row.original.plantName}
@@ -162,23 +154,23 @@ export function createCityWorkshopColumns() {
       enableColumnFilter: false,
       enableSorting: false,
     }),
-    columnHelper.display({
-      id: "actions",
-      cell: ({ row }) => (
-        <div className="flex justify-end">
-          <WorkshopLink
-            plantId={row.original.plantId}
-            workshopId={row.original.id}
-          >
-            <Button variant="ghost" size="icon" className="size-8">
-              <ChevronRightIcon className="size-4" />
-            </Button>
-          </WorkshopLink>
-        </div>
-      ),
-      enableHiding: false,
-      enableSorting: false,
-      size: 48,
-    }),
+    // columnHelper.display({
+    //   id: "actions",
+    //   cell: ({ row }) => (
+    //     <div className="flex justify-end">
+    //       <WorkshopLink
+    //         plantId={row.original.plantId}
+    //         workshopId={row.original.id}
+    //       >
+    //         <Button variant="ghost" size="icon" className="size-8">
+    //           <ChevronRightIcon className="size-4" />
+    //         </Button>
+    //       </WorkshopLink>
+    //     </div>
+    //   ),
+    //   enableHiding: false,
+    //   enableSorting: false,
+    //   size: 48,
+    // }),
   ]);
 }

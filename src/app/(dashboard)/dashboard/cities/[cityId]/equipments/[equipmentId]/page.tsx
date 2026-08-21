@@ -59,6 +59,16 @@ export default async function EquipmentDetailPage({
 
   if (!Number.isInteger(eId) || eId <= 0) notFound();
 
+  // const canReadEquipment = await auth.api.userHasPermission({
+  //   headers: await headers(),
+  //   body: {
+  //     permissions: {
+  //       equipment: ["read"],
+  //     },
+  //   },
+  // });
+  // if (!canReadEquipment) notFound();
+
   return (
     <div className="flex flex-col gap-6 ">
       <Suspense fallback={<ToolbarSkeleton />}>

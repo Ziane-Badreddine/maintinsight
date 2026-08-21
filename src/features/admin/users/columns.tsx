@@ -12,9 +12,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ShieldCheck, Trash2 } from "lucide-react";
-import { BanUserDialog } from "./ban-user-dialog";
+import { MoreHorizontal, ShieldBan, ShieldCheck, Trash2 } from "lucide-react";
 import { DataTableFeatures } from "@/features/dashboard/components/data-table-features";
+import { DataTableColumnHeader } from "@/features/dashboard/components/data-table-column-header";
 
 export interface User {
   id: string;
@@ -31,13 +31,21 @@ const columnHelper = createColumnHelper<DataTableFeatures, User>();
 interface GetColumnsOptions {
   onUnban: (userId: string) => void;
   onDelete: (user: User) => void;
+  onBan: (user: User) => void;
   busy: boolean;
 }
 
-export function getColumns({ onUnban, onDelete, busy }: GetColumnsOptions) {
+export function getColumns({
+  onUnban,
+  onBan,
+  onDelete,
+  busy,
+}: GetColumnsOptions) {
   return columnHelper.columns([
     columnHelper.accessor("name", {
-      header: "User",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="User" />
+      ),
       cell: ({ row }) => {
         const user = row.original;
         return (
@@ -86,7 +94,9 @@ export function getColumns({ onUnban, onDelete, busy }: GetColumnsOptions) {
         ),
     }),
     columnHelper.accessor("createdAt", {
-      header: "Joined",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Joined" />
+      ),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {formatDistanceToNow(new Date(row.original.createdAt), {
@@ -100,39 +110,44 @@ export function getColumns({ onUnban, onDelete, busy }: GetColumnsOptions) {
       cell: ({ row }) => {
         const user = row.original;
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8"
-                  disabled={busy}
-                />
-              }
-            >
-              <MoreHorizontal className="size-4" />
-              <span className="sr-only">Actions</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {user.banned ? (
-                <DropdownMenuItem onClick={() => onUnban(user.id)}>
-                  <ShieldCheck className="size-4" />
-                  Unban user
-                </DropdownMenuItem>
-              ) : (
-                <BanUserDialog user={user} trigger="dropdown-item" />
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={() => onDelete(user)}
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 "
+                    disabled={busy}
+                  />
+                }
               >
-                <Trash2 className="size-4" />
-                Delete user
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <MoreHorizontal className="size-4" />
+                <span className="sr-only">Actions</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {user.banned ? (
+                  <DropdownMenuItem onClick={() => onUnban(user.id)}>
+                    <ShieldCheck className="size-4" />
+                    Unban user
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem onClick={() => onBan(user)}>
+                    <ShieldBan className="size-4" />
+                    Ban user
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => onDelete(user)}
+                >
+                  <Trash2 className="size-4" />
+                  Delete user
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     }),

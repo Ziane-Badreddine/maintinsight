@@ -438,7 +438,6 @@ async function AlarmsOverviewSection({
   plantId: number | null;
 }) {
   const data = await getCityAlarmsOverview(cityId, plantId);
-  console.log(data);
 
   return <AlarmsOverviewTable data={data} />;
 }

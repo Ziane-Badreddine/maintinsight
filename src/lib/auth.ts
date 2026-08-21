@@ -10,6 +10,8 @@ import {
   sendChangeEmailConfirmation,
   sendDeleteAccountVerification,
   sendForgotPasswordEmail,
+  sendInviteEmail,
+  sendMagicLinkEmail,
   sendVerificationEmail,
 } from "./email";
 import { passkey } from "@better-auth/passkey";
@@ -101,8 +103,30 @@ export const auth = betterAuth({
     passkey(),
     lastLoginMethod(),
     magicLink({
-      sendMagicLink: async ({ email, token, url, metadata }, ctx) => {
-        // send email to user
+      expiresIn: 60 * 60 * 24,
+
+      sendMagicLink: async ({ email, url, metadata }) => {
+        if (metadata?.type === "invite") {
+          after(() =>
+            sendInviteEmail({
+              to: email,
+              userName: metadata.name ?? email,
+              inviterName: metadata.inviterName,
+              role: metadata.role,
+              inviteUrl: url,
+            }),
+          );
+
+          return;
+        }
+
+        after(() =>
+          sendMagicLinkEmail({
+            to: email,
+            userName: metadata?.name ?? email,
+            magicLinkUrl: url,
+          }),
+        );
       },
     }),
   ],

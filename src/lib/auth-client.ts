@@ -44,3 +44,9 @@ export function roleHasPermission(
     permissions,
   });
 }
+
+export type CheckRolePermissionArgs = Parameters<
+  typeof authClient.admin.checkRolePermission
+>[0];
+export type Role = CheckRolePermissionArgs["role"];
+export type Permissions = CheckRolePermissionArgs["permissions"];

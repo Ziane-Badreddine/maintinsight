@@ -4,6 +4,8 @@ import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 export const statements = {
   ...defaultStatements,
 
+  city: ["create", "read", "update", "delete"],
+
   dashboard: ["read"],
 
   equipment: ["create", "read", "update", "delete"],
@@ -22,13 +24,16 @@ export const statements = {
 export const ac = createAccessControl(statements);
 
 export const viewer = ac.newRole({
+  city: ["read"],
   dashboard: ["read"],
+  plant: ["read"],
+  workshop: ["read"],
 
   equipment: ["read"],
 
-  inspection: ["read"],
+  // inspection: ["read"],
 
-  report: ["read"],
+  // report: ["read"],
 });
 
 export const inspector = ac.newRole({
@@ -54,6 +59,7 @@ export const manager = ac.newRole({
 export const admin = ac.newRole({
   ...adminAc.statements,
 
+  city: ["create", "read", "update", "delete"],
   dashboard: ["read"],
 
   equipment: ["create", "read", "update", "delete"],

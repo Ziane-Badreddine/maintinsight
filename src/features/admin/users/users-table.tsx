@@ -37,6 +37,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { getColumns, type User } from "./columns";
 import { DataTable } from "../sessions/data-table";
+import { BanUserDialog } from "./ban-user-dialog";
 
 interface UsersTableProps {
   users: User[];
@@ -55,6 +56,8 @@ export function UsersTable({
 }: UsersTableProps) {
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [banTarget, setBanTarget] = useState<User | null>(null);
+
   const [busy, setBusy] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [{}, setFilters] = useUsersFilters({ startTransition });
@@ -98,9 +101,11 @@ export function UsersTable({
     () =>
       getColumns({
         onUnban: handleUnban,
+        onBan: setBanTarget,
         onDelete: setDeleteTarget,
         busy,
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [busy],
   );
 
@@ -186,6 +191,13 @@ export function UsersTable({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <BanUserDialog
+        user={banTarget}
+        open={!!banTarget}
+        onOpenChange={(open) => {
+          if (!open) setBanTarget(null);
+        }}
+      />
     </>
   );
 }

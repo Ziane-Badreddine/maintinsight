@@ -55,11 +55,11 @@ export async function getEquipmentHeaderInfo(equipmentId: number) {
       },
 
       inspections: {
-        where: {
-          inspection: {
-            performedById: session.user.id,
-          },
-        },
+        // where: {
+        //   inspection: {
+        //     performedById: session.user.id,
+        //   },
+        // },
         select: {
           status: true,
           createdAt: true,

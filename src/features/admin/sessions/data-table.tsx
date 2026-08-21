@@ -1,6 +1,11 @@
 "use client";
 
-import { useTable, type ColumnDef, type RowData } from "@tanstack/react-table";
+import {
+  SortingState,
+  useTable,
+  type ColumnDef,
+  type RowData,
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -16,6 +21,7 @@ import {
 } from "@/features/dashboard/components/data-table-features";
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useState } from "react";
 
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<DataTableFeatures, TData>[];
@@ -26,10 +32,15 @@ export function DataTable<TData extends RowData>({
   columns,
   data,
 }: DataTableProps<TData>) {
+  const [sorting, setSorting] = useState<SortingState>([]);
   const table = useTable({
     features,
     data,
     columns,
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
   });
 
   return (
