@@ -13,13 +13,12 @@ export async function completeOnboarding(input: CompleteOnboardingInput) {
   const requestHeaders = await headers();
 
   try {
-    await auth.api.updateUser({
-      body: { name: input.name },
-      headers: requestHeaders,
-    });
-
     await auth.api.setPassword({
       body: { newPassword: input.password },
+      headers: requestHeaders,
+    });
+    await auth.api.updateUser({
+      body: { name: input.name },
       headers: requestHeaders,
     });
 
