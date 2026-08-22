@@ -1,5 +1,3 @@
-import { cacheLife } from "next/cache";
-
 import { prisma } from "@/lib/prisma";
 import { STATUS_DISPLAY_ORDER } from "../constants/equipment-status";
 import { EquipmentStatus } from "../../../../prisma/generated/prisma/enums";
@@ -41,9 +39,6 @@ export interface CityOverviewData {
 // Lightweight query for the header (city name + plant list),
 // called outside the Suspense boundary for an instant render.
 export async function getCityHeaderInfo(cityId: number) {
-  "use cache";
-  cacheLife("minutes");
-
   const city = await prisma.city.findUnique({
     where: { id: cityId },
     select: {
@@ -62,9 +57,6 @@ export async function getCityHeaderInfo(cityId: number) {
 export async function getCityOverview(
   cityId: number,
 ): Promise<CityOverviewData | null> {
-  "use cache";
-  cacheLife("minutes");
-
   const city = await prisma.city.findUnique({
     where: { id: cityId },
     select: { id: true, name: true, code: true },

@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import {
   useTable,
   type ColumnFiltersState,
@@ -58,7 +57,6 @@ export function WorkshopsOverviewTable({
   data,
   cityId,
 }: WorkshopsOverviewTableProps) {
-  const router = useRouter();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] =
     useState<ColumnVisibilityState>({});

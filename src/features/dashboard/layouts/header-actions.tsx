@@ -48,7 +48,7 @@ export function HeaderActions({ cityId }: { cityId: string }) {
           </Button>
         )}
 
-        <CityAdvisorCenter cityId={Number(cityId)} />
+        <CityAdvisorCenter />
         <RefreshButton />
 
         <UserAvatar />
