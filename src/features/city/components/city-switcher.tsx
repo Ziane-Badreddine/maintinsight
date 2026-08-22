@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import type { Route } from "next";
 import { Building2Icon, ChevronsUpDownIcon } from "lucide-react";
@@ -13,20 +12,14 @@ import {
   ComboboxTrigger,
 } from "@/components/ui/combobox";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { citiesQueryOptions } from "../utils/api";
 import type { City } from "../../../../prisma/generated/prisma/client";
 
 interface CitySwitcherHeaderProps {
   cityId: string;
+  cities: City[];
 }
 
-export function CitySwitcherHeader({ cityId }: CitySwitcherHeaderProps) {
-  const { data: cities, isPending } = useQuery(citiesQueryOptions);
-
-  if (isPending) {
-    return <Skeleton className="h-8 w-32" />;
-  }
+export function CitySwitcherHeader({ cityId, cities }: CitySwitcherHeaderProps) {
 
   const activeCity = cities?.find((c) => String(c.id) === cityId);
 
