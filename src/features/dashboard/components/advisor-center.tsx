@@ -34,10 +34,7 @@ import { Kbd } from "@/components/ui/kbd";
 import { statusChartConfig } from "@/features/plant/components/chart-config";
 import { api } from "@/lib/axios";
 import { Spinner } from "@/components/ui/spinner";
-
-interface CityAdvisorCenterProps {
-  cityId?: number;
-}
+import { useParams } from "next/navigation";
 
 export interface CityCriticalEquipment {
   id: number;
@@ -68,12 +65,13 @@ export const cityCriticalEquipmentsQueryOptions = (cityId: number) =>
     staleTime: 60 * 1000,
   });
 
-export function CityAdvisorCenter({ cityId }: CityAdvisorCenterProps) {
+export function CityAdvisorCenter() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const { cityId } = useParams<{ cityId: string }>();
 
   const { data, isPending } = useQuery({
-    ...cityCriticalEquipmentsQueryOptions(cityId ?? 0),
+    ...cityCriticalEquipmentsQueryOptions(Number(cityId) ?? 0),
     enabled: Boolean(cityId),
   });
 
