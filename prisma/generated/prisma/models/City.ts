@@ -217,6 +217,7 @@ export type CityWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"City"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"City"> | Date | string
   plants?: Prisma.PlantListRelationFilter
+  reports?: Prisma.ReportListRelationFilter
 }
 
 export type CityOrderByWithRelationInput = {
@@ -226,6 +227,7 @@ export type CityOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   plants?: Prisma.PlantOrderByRelationAggregateInput
+  reports?: Prisma.ReportOrderByRelationAggregateInput
 }
 
 export type CityWhereUniqueInput = Prisma.AtLeast<{
@@ -238,6 +240,7 @@ export type CityWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"City"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"City"> | Date | string
   plants?: Prisma.PlantListRelationFilter
+  reports?: Prisma.ReportListRelationFilter
 }, "id" | "code">
 
 export type CityOrderByWithAggregationInput = {
@@ -270,6 +273,7 @@ export type CityCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   plants?: Prisma.PlantCreateNestedManyWithoutCityInput
+  reports?: Prisma.ReportCreateNestedManyWithoutCityInput
 }
 
 export type CityUncheckedCreateInput = {
@@ -279,6 +283,7 @@ export type CityUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   plants?: Prisma.PlantUncheckedCreateNestedManyWithoutCityInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutCityInput
 }
 
 export type CityUpdateInput = {
@@ -287,6 +292,7 @@ export type CityUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plants?: Prisma.PlantUpdateManyWithoutCityNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutCityNestedInput
 }
 
 export type CityUncheckedUpdateInput = {
@@ -296,6 +302,7 @@ export type CityUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plants?: Prisma.PlantUncheckedUpdateManyWithoutCityNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutCityNestedInput
 }
 
 export type CityCreateManyInput = {
@@ -372,11 +379,26 @@ export type CityUpdateOneRequiredWithoutPlantsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CityUpdateToOneWithWhereWithoutPlantsInput, Prisma.CityUpdateWithoutPlantsInput>, Prisma.CityUncheckedUpdateWithoutPlantsInput>
 }
 
+export type CityCreateNestedOneWithoutReportsInput = {
+  create?: Prisma.XOR<Prisma.CityCreateWithoutReportsInput, Prisma.CityUncheckedCreateWithoutReportsInput>
+  connectOrCreate?: Prisma.CityCreateOrConnectWithoutReportsInput
+  connect?: Prisma.CityWhereUniqueInput
+}
+
+export type CityUpdateOneRequiredWithoutReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.CityCreateWithoutReportsInput, Prisma.CityUncheckedCreateWithoutReportsInput>
+  connectOrCreate?: Prisma.CityCreateOrConnectWithoutReportsInput
+  upsert?: Prisma.CityUpsertWithoutReportsInput
+  connect?: Prisma.CityWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CityUpdateToOneWithWhereWithoutReportsInput, Prisma.CityUpdateWithoutReportsInput>, Prisma.CityUncheckedUpdateWithoutReportsInput>
+}
+
 export type CityCreateWithoutPlantsInput = {
   name: string
   code: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  reports?: Prisma.ReportCreateNestedManyWithoutCityInput
 }
 
 export type CityUncheckedCreateWithoutPlantsInput = {
@@ -385,6 +407,7 @@ export type CityUncheckedCreateWithoutPlantsInput = {
   code: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutCityInput
 }
 
 export type CityCreateOrConnectWithoutPlantsInput = {
@@ -408,6 +431,7 @@ export type CityUpdateWithoutPlantsInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reports?: Prisma.ReportUpdateManyWithoutCityNestedInput
 }
 
 export type CityUncheckedUpdateWithoutPlantsInput = {
@@ -416,6 +440,57 @@ export type CityUncheckedUpdateWithoutPlantsInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutCityNestedInput
+}
+
+export type CityCreateWithoutReportsInput = {
+  name: string
+  code: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  plants?: Prisma.PlantCreateNestedManyWithoutCityInput
+}
+
+export type CityUncheckedCreateWithoutReportsInput = {
+  id?: number
+  name: string
+  code: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  plants?: Prisma.PlantUncheckedCreateNestedManyWithoutCityInput
+}
+
+export type CityCreateOrConnectWithoutReportsInput = {
+  where: Prisma.CityWhereUniqueInput
+  create: Prisma.XOR<Prisma.CityCreateWithoutReportsInput, Prisma.CityUncheckedCreateWithoutReportsInput>
+}
+
+export type CityUpsertWithoutReportsInput = {
+  update: Prisma.XOR<Prisma.CityUpdateWithoutReportsInput, Prisma.CityUncheckedUpdateWithoutReportsInput>
+  create: Prisma.XOR<Prisma.CityCreateWithoutReportsInput, Prisma.CityUncheckedCreateWithoutReportsInput>
+  where?: Prisma.CityWhereInput
+}
+
+export type CityUpdateToOneWithWhereWithoutReportsInput = {
+  where?: Prisma.CityWhereInput
+  data: Prisma.XOR<Prisma.CityUpdateWithoutReportsInput, Prisma.CityUncheckedUpdateWithoutReportsInput>
+}
+
+export type CityUpdateWithoutReportsInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plants?: Prisma.PlantUpdateManyWithoutCityNestedInput
+}
+
+export type CityUncheckedUpdateWithoutReportsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plants?: Prisma.PlantUncheckedUpdateManyWithoutCityNestedInput
 }
 
 
@@ -425,10 +500,12 @@ export type CityUncheckedUpdateWithoutPlantsInput = {
 
 export type CityCountOutputType = {
   plants: number
+  reports: number
 }
 
 export type CityCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   plants?: boolean | CityCountOutputTypeCountPlantsArgs
+  reports?: boolean | CityCountOutputTypeCountReportsArgs
 }
 
 /**
@@ -448,6 +525,13 @@ export type CityCountOutputTypeCountPlantsArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.PlantWhereInput
 }
 
+/**
+ * CityCountOutputType without action
+ */
+export type CityCountOutputTypeCountReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReportWhereInput
+}
+
 
 export type CitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -456,6 +540,7 @@ export type CitySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   plants?: boolean | Prisma.City$plantsArgs<ExtArgs>
+  reports?: boolean | Prisma.City$reportsArgs<ExtArgs>
   _count?: boolean | Prisma.CityCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["city"]>
 
@@ -486,6 +571,7 @@ export type CitySelectScalar = {
 export type CityOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "code" | "createdAt" | "updatedAt", ExtArgs["result"]["city"]>
 export type CityInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   plants?: boolean | Prisma.City$plantsArgs<ExtArgs>
+  reports?: boolean | Prisma.City$reportsArgs<ExtArgs>
   _count?: boolean | Prisma.CityCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CityIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -495,6 +581,7 @@ export type $CityPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "City"
   objects: {
     plants: Prisma.$PlantPayload<ExtArgs>[]
+    reports: Prisma.$ReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -897,6 +984,7 @@ readonly fields: CityFieldRefs;
 export interface Prisma__CityClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   plants<T extends Prisma.City$plantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.City$plantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PlantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reports<T extends Prisma.City$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.City$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1345,6 +1433,30 @@ export type City$plantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.PlantScalarFieldEnum | Prisma.PlantScalarFieldEnum[]
+}
+
+/**
+ * City.reports
+ */
+export type City$reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Report
+   */
+  select?: Prisma.ReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Report
+   */
+  omit?: Prisma.ReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ReportInclude<ExtArgs> | null
+  where?: Prisma.ReportWhereInput
+  orderBy?: Prisma.ReportOrderByWithRelationInput | Prisma.ReportOrderByWithRelationInput[]
+  cursor?: Prisma.ReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ReportScalarFieldEnum | Prisma.ReportScalarFieldEnum[]
 }
 
 /**

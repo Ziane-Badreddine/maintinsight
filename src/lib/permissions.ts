@@ -12,7 +12,7 @@ export const statements = {
 
   inspection: ["create", "read", "update", "delete", "validate"],
 
-  report: ["read", "generate", "download"],
+  report: ["read", "generate", "download", "delete"],
 
   plant: ["create", "read", "update", "delete"],
 
@@ -53,7 +53,7 @@ export const manager = ac.newRole({
 
   inspection: ["read", "validate"],
 
-  report: ["read", "generate", "download"],
+  report: ["read", "generate", "download", "delete"],
 });
 
 export const admin = ac.newRole({
@@ -66,7 +66,7 @@ export const admin = ac.newRole({
 
   inspection: ["create", "read", "update", "delete", "validate"],
 
-  report: ["read", "generate", "download"],
+  report: ["read", "generate", "download", "delete"],
 
   plant: ["create", "read", "update", "delete"],
 

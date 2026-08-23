@@ -16,6 +16,8 @@ import NavSlot from "./nav-slot";
 import CitySwitcherSlot from "./city-switcher-slot";
 import CreateInspectionSlot from "./create-inspection-slot";
 
+import GenerateReportSheetServer from "@/features/report/components/generate-report-sheet-server";
+
 const NAV_SKELETON_WIDTHS = ["w-16", "w-12", "w-20", "w-24", "w-20", "w-16"];
 
 export default function Header({
@@ -38,8 +40,15 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-2">
-          <Suspense fallback={null}>
+          <Suspense
+            fallback={<Skeleton className="h-6 w-32 rounded-full ml-2" />}
+          >
             <CreateInspectionSlot />
+          </Suspense>
+          <Suspense
+            fallback={<Skeleton className="h-6 w-32 rounded-full ml-2" />}
+          >
+            <GenerateReportSheetServer paramsPromise={paramsPromise} />
           </Suspense>
 
           <Button
