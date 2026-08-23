@@ -11,7 +11,10 @@ export async function getInspectionDetail(inspectionId: number) {
     unauthorized();
   }
   const inspection = await prisma.inspection.findUnique({
-    where: { id: inspectionId, performedById: session.user.id },
+    where: {
+      id: inspectionId,
+      // performedById: session.user.id
+    },
     select: {
       id: true,
       reference: true,

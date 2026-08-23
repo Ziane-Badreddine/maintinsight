@@ -24,6 +24,17 @@ enum MeasurementType {
   OTHER
 }
 
+enum ReportStatus {
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+enum ReportTrigger {
+  MANUAL
+  AUTO
+}
+
 // Correspond au champ "zone" des données sources (Entité / Site) :
 // ENTITY  = équipement suivi individuellement
 // SITE    = équipement mutualisé/partagé au niveau du site (ex: turbosoufflante commune)
@@ -33,10 +44,11 @@ enum EquipmentScope {
 }
 
 model City {
-  id     Int     @id @default(autoincrement())
-  name   String // "Jorf Lasfar", "Safi"
-  code   String  @unique // "jorf", "safi"
-  plants Plant[]
+  id      Int      @id @default(autoincrement())
+  name    String // "Jorf Lasfar", "Safi"
+  code    String   @unique // "jorf", "safi"
+  plants  Plant[]
+  reports Report[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -175,4 +187,33 @@ model Measurement {
 
   @@index([inspectionEquipmentId])
   @@map("measurements")
+}
+
+model Report {
+  id     Int  @id @default(autoincrement())
+  cityId Int
+  city   City @relation(fields: [cityId], references: [id])
+
+  date DateTime @db.Date // jour couvert par le rapport
+
+  status  ReportStatus  @default(GENERATING)
+  trigger ReportTrigger
+
+  period   String @default("today") // "today" | "last24h"
+  sections Json   @default("[\"summary\",\"charts\",\"plants\",\"criticalEquipment\",\"inspections\",\"measurements\",\"alerts\"]")
+
+  blobUrl String? // url Vercel Blob une fois généré
+  error   String?
+
+  generatedById String?
+  generatedBy   User?   @relation(fields: [generatedById], references: [id])
+
+  emailSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([cityId, date]) // un seul rapport par ville/jour
+  @@index([cityId, date])
+  @@map("reports")
 }

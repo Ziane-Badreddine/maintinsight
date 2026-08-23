@@ -44,6 +44,23 @@ export const MeasurementType = {
 export type MeasurementType = (typeof MeasurementType)[keyof typeof MeasurementType]
 
 
+export const ReportStatus = {
+  GENERATING: 'GENERATING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus]
+
+
+export const ReportTrigger = {
+  MANUAL: 'MANUAL',
+  AUTO: 'AUTO'
+} as const
+
+export type ReportTrigger = (typeof ReportTrigger)[keyof typeof ReportTrigger]
+
+
 export const EquipmentScope = {
   ENTITY: 'ENTITY',
   SITE: 'SITE'

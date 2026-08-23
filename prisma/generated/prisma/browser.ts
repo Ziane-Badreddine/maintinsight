@@ -82,3 +82,8 @@ export type InspectionEquipment = Prisma.InspectionEquipmentModel
  * 
  */
 export type Measurement = Prisma.MeasurementModel
+/**
+ * Model Report
+ * 
+ */
+export type Report = Prisma.ReportModel

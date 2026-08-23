@@ -3,6 +3,12 @@ import * as XLSX from "xlsx";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 
+import { auth } from "@/lib/auth";
+
+const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? "admin@ocp.local";
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? "admin123";
+const ADMIN_NAME = process.env.SEED_ADMIN_NAME ?? "Admin";
+
 const FILE_PATH = path.join(
   process.cwd(),
   "prisma",
@@ -14,12 +20,6 @@ const SHEET_TO_CITY: Record<string, { name: string; code: string }> = {
   jorf: { name: "Jorf Lasfar", code: "jorf" },
   safi: { name: "Safi", code: "safi" },
 };
-
-// Utilisateur "système" pour les données importées historiquement.
-// Doit exister dans la table `user` gérée par better-auth.
-const SEED_USER_ID =
-  process.env.SEED_USER_ID ?? "f72AY8EiEcZ82NPqS4QxRAin7mxzntzm";
-const SEED_USER_EMAIL = "seed-import@ocp.local";
 
 const STATUS_MAP: Record<string, EquipmentStatus> = {
   BON: "GOOD",
@@ -97,16 +97,23 @@ function parseCampaignDate(label: string): Date {
 }
 
 async function ensureSeedUser() {
-  return prisma.user.upsert({
-    where: { email: SEED_USER_EMAIL },
-    update: {},
-    create: {
-      id: SEED_USER_ID,
-      email: SEED_USER_EMAIL,
-      name: "Import Excel (Seed)",
-      emailVerified: true,
+  // auth.api.createUser (plugin admin) appelle directement la logique interne
+  // de better-auth côté serveur : hash du mot de passe géré correctement,
+  // et ça ne passe PAS par la route HTTP publique /sign-up (donc pas bloqué
+  // même si tu as désactivé le signup public).
+  const result = await auth.api.createUser({
+    body: {
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+      name: ADMIN_NAME,
+      role: "admin", // nécessite le plugin admin configuré côté auth.ts
+      data: {
+        emailVerified: true,
+      },
     },
   });
+
+  return result.user;
 }
 
 async function upsertInspection(

@@ -11,7 +11,7 @@ import { useDashboardLayoutStore } from "@/features/global/stores/dashboard-layo
 import { EditModeToolbar } from "@/features/global/components/edit-mode-toolbar";
 import { CityAdvisorCenter } from "../components/advisor-center";
 
-export function HeaderActions({ cityId }: { cityId: string }) {
+export function HeaderActions() {
   const pathname = usePathname();
 
   const isEditMode = useDashboardLayoutStore((s) => s.isEditMode);

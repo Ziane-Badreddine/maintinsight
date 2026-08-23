@@ -134,7 +134,7 @@ export async function getEquipmentStatusHistory(
       equipmentId,
       inspection: {
         inspectionDate: { gte: since, lte: until },
-        performedById: session.user.id,
+        // performedById: session.user.id,
       },
     },
     select: {
@@ -205,7 +205,12 @@ export async function getEquipmentInspections(
     unauthorized();
   }
   const entries = await prisma.inspectionEquipment.findMany({
-    where: { equipmentId, inspection: { performedById: session.user.id } },
+    where: {
+      equipmentId,
+      inspection: {
+        // performedById: session.user.id
+      },
+    },
     select: {
       id: true,
       status: true,
