@@ -41,10 +41,10 @@ export default function NavClient({ nav }: { nav: NavItem[] }) {
 
   return (
     <Carousel
-      opts={{ align: "start", dragFree: isMobile, active: isMobile }}
-      className="sticky top-0 z-20 h-12 w-full shrink-0 border-b bg-background"
+      opts={{ align: "start", dragFree: false, active: isMobile }}
+      className="sticky top-0 z-20 h-12 w-full shrink-0 border-b bg-background  "
     >
-      <CarouselContent className="ml-0 items-stretch h-12">
+      <CarouselContent className="ml-0 items-stretch h-12 ">
         {nav.map((item) => (
           <CarouselItem
             key={item.label}

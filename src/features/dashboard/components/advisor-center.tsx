@@ -127,7 +127,7 @@ export function CityAdvisorCenter() {
       <Sheet open={open} onOpenChange={handleOpenChange}>
         <SheetContent
           side="right"
-          className="flex w-screen flex-col gap-0 sm:max-w-2xl!"
+          className="flex w-screen! flex-col gap-0 sm:max-w-2xl!"
         >
           <SheetHeader>
             <SheetTitle>Advisor center</SheetTitle>

@@ -49,6 +49,8 @@ import { generateReportAction } from "../actions/generate-report-action";
 import { INSPECTION_SHEET_CLASS } from "@/features/inspection/components/sheets/inspection-sheet-styles";
 import { Report } from "../../../../prisma/generated/prisma/client";
 import { useRouter } from "next/navigation";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 interface GenerateReportSheetProps {
   cityId: number;
@@ -68,6 +70,7 @@ export function GenerateReportSheet({
   );
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   function toggleSection(id: ReportSection) {
     setSections((prev) => {
@@ -116,9 +119,9 @@ export function GenerateReportSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
-          <Button>
+          <Button className={cn(isMobile && "rounded-full")}>
             <FileTextIcon className="size-4" />
-            Generate report
+            <span className="hidden md:block">Generate report</span>
           </Button>
         }
       ></SheetTrigger>
