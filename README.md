@@ -290,48 +290,13 @@ Les tests unitaires couvrent les périodes d’inspection, les permissions, les 
 
 ## Déploiement avec Vercel
 
-Le projet est compatible avec Vercel et utilise les scripts Next.js standards. Connecter le dépôt GitHub au projet Vercel, configurer les variables d’environnement dans les réglages du projet, puis lancer un déploiement depuis la branche souhaitée. La commande de build utilisée est :
+Vercel est la seule méthode de déploiement supportée pour ce projet. Importer le dépôt GitHub dans Vercel, sélectionner le framework Next.js, configurer les variables d’environnement dans les environnements Preview et Production, puis déployer depuis la branche souhaitée. La commande de build utilisée est :
 
 ```bash
 npm run build
 ```
 
 La base PostgreSQL doit être accessible depuis Vercel et les variables `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, ainsi que les variables Blob et e-mail nécessaires doivent être configurées dans les environnements Preview et Production.
-
-## Déploiement avec Docker
-
-Le projet fournit un `Dockerfile` multi-stage et un `docker-compose.yml` pour exécuter MaintInsight avec PostgreSQL en local ou sur un serveur Docker. Next.js est configuré en sortie `standalone` afin de produire une image runtime plus légère.
-
-### Démarrage local avec Docker Compose
-
-Créer un fichier `.env` à la racine avec au minimum :
-
-```env
-BETTER_AUTH_SECRET=changez-cette-valeur-secrete
-BLOB_READ_WRITE_TOKEN=votre-token-blob-optionnel
-RESEND_API_KEY=votre-cle-resend-optionnelle
-EMAIL_FROM=noreply@example.com
-```
-
-Puis lancer :
-
-```bash
-docker compose up --build
-```
-
-L’application est disponible sur [http://localhost:3000](http://localhost:3000) et PostgreSQL sur le port `5432`. Le service `app` attend que la base soit saine avant de démarrer.
-
-### Commandes Docker utiles
-
-```bash
-docker compose up -d --build       # Construire et démarrer en arrière-plan
-docker compose logs -f app          # Consulter les logs de l’application
-docker compose exec app npx prisma migrate deploy
-docker compose down                 # Arrêter les services
-docker compose down -v              # Arrêter et supprimer les données PostgreSQL
-```
-
-Pour un déploiement production, remplacer les identifiants PostgreSQL de démonstration, utiliser un secret Better Auth robuste, fournir une base PostgreSQL managée et configurer un reverse proxy HTTPS devant le port `3000`. Ne jamais publier les secrets dans le dépôt.
 
 ## Évolutions possibles
 
