@@ -274,6 +274,30 @@ Les principaux endpoints se trouvent dans `src/app/api` :
 - `/api/avatar/upload` : upload d’avatar.
 - `/api/cron/daily-reports` : génération automatisée des rapports quotidiens.
 
+## Tests automatisés
+
+Le projet utilise Vitest pour les tests unitaires et Playwright pour les parcours end-to-end.
+
+```bash
+npm test                 # Exécute les tests unitaires
+npm run test:watch       # Lance Vitest en mode watch
+npm run test:e2e         # Exécute les tests Playwright
+npm run lint             # Vérifie ESLint
+npx tsc --noEmit         # Vérifie le typage TypeScript
+```
+
+Les tests unitaires couvrent les périodes d’inspection, les permissions, les schémas de validation et la validation d’inspection. Les tests E2E couvrent les parcours critiques de connexion, de navigation dashboard et de gestion d’équipement. Playwright nécessite un navigateur installé dans l’environnement d’exécution.
+
+## Déploiement avec Vercel
+
+Vercel est la seule méthode de déploiement supportée pour ce projet. Importer le dépôt GitHub dans Vercel, sélectionner le framework Next.js, configurer les variables d’environnement dans les environnements Preview et Production, puis déployer depuis la branche souhaitée. La commande de build utilisée est :
+
+```bash
+npm run build
+```
+
+La base PostgreSQL doit être accessible depuis Vercel et les variables `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, ainsi que les variables Blob et e-mail nécessaires doivent être configurées dans les environnements Preview et Production.
+
 ## Évolutions possibles
 
 - Ajouter une gestion explicite des plans de maintenance préventive.
