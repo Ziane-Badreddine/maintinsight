@@ -19,9 +19,9 @@ interface SessionRowProps {
 }
 
 function DeviceIcon({ device }: { device: string }) {
-  if (device.startsWith("Mobile")) return <Smartphone className="size-4" />;
-  if (device.startsWith("Tablet")) return <Tablet className="size-4" />;
-  return <Laptop className="size-10" />;
+  if (device.startsWith("Mobile")) return <Smartphone className="size-8" />;
+  if (device.startsWith("Tablet")) return <Tablet className="size-8" />;
+  return <Laptop className="size-8" />;
 }
 
 export function SessionRow({

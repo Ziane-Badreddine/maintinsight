@@ -110,7 +110,7 @@ export function RevokeSessionButton({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger
         render={
-          <Button variant="ghost" size="sm">
+          <Button variant="secondary" size={"sm"}>
             Revoke
           </Button>
         }

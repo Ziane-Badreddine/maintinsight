@@ -27,7 +27,7 @@ export function PasskeyRow({
   deviceType,
 }: PasskeyRowProps) {
   return (
-    <Item size="sm" className="px-0">
+    <Item className="px-0">
       <ItemMedia>
         <Fingerprint className="size-4" />
       </ItemMedia>

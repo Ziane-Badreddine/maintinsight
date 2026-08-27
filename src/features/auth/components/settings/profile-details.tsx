@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, User } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -120,13 +120,13 @@ export function ProfileDetails() {
                           </ItemDescription>
                         </ItemContent>
                         <ItemMedia className="flex items-center gap-2">
-                          <Avatar className="size-7">
+                          <Avatar>
                             <AvatarImage
-                              src={user.image ?? undefined}
-                              alt={user.name ?? "User"}
+                              src={session.user.image ?? "/avatar.png"}
+                              alt={session.user.name ?? "User"}
                             />
-                            <AvatarFallback>
-                              {user.name?.charAt(0).toUpperCase() ?? "U"}
+                            <AvatarFallback className={"bg-foreground"}>
+                              <User className="text-primary-foreground size-4.5" />
                             </AvatarFallback>
                           </Avatar>
                           <ChevronRight
