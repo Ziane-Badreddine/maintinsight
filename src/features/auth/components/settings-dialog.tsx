@@ -84,7 +84,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           </Sidebar>
 
           <main className="flex h-120 flex-1 flex-col  overflow-hidden px-2 pt-4">
-            <div className="flex flex-1 flex-col gap-0 overflow-y-auto p-4 pt-0">
+            <div className="flex flex-1 flex-col gap-0 overflow-y-auto px-4 ">
               {activeSection === "profile" && <ProfileDetails />}
               {activeSection === "security" && <Security />}
               {activeSection === "preferences" && <Preferences />}

@@ -26,6 +26,7 @@ import { DisplayNameForm } from "./profile/display-name-form";
 import AvatarForm from "./profile/avatar-form";
 import { EmailSection } from "./profile/email-section";
 import { LinkedAccountsSection } from "./profile/linked-accounts-section";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function ProfileDetails() {
   const { data: session } = authClient.useSession();
@@ -45,7 +46,7 @@ export function ProfileDetails() {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="mb-2 sticky top-0 bg-transparent border-b z-10"
+        className="mb-2 sticky top-0 bg-transparent  z-10"
       >
         <TabsList variant="line">
           <TabsTrigger value="profile">Profile</TabsTrigger>
@@ -54,104 +55,106 @@ export function ProfileDetails() {
         </TabsList>
       </Tabs>
 
-      {activeTab === "profile" && (
-        <ItemGroup>
-          {/* Display name row */}
-          <Collapsible
-            open={openRow === "displayName"}
-            onOpenChange={() => toggleRow("displayName")}
-          >
-            <CollapsibleTrigger
-              render={
-                <Item
-                  render={
-                    <button type="button">
-                      <ItemContent>
-                        <ItemTitle>Display name</ItemTitle>
-                        <ItemDescription>
-                          Changing your display name won&apos;t change your
-                          username
-                        </ItemDescription>
-                      </ItemContent>
-                      <ItemMedia className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          {user.name}
-                        </span>
-                        <ChevronRight
-                          className={cn(
-                            "size-4 text-muted-foreground transition-transform",
-                            openRow === "displayName" && "rotate-90",
-                          )}
-                        />
-                      </ItemMedia>
-                    </button>
-                  }
-                  className="cursor-pointer px-0"
-                ></Item>
-              }
-            ></CollapsibleTrigger>
-
-            <CollapsibleContent>
-              <div className=" pb-4">
-                <DisplayNameForm
-                  defaultValue={user.name ?? ""}
-                  onDone={() => setOpenRow(null)}
-                />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Avatar row */}
-          <Collapsible
-            open={openRow === "avatar"}
-            onOpenChange={() => toggleRow("avatar")}
-          >
-            <CollapsibleTrigger
-              render={
-                <Item
-                  render={
-                    <button type="button">
-                      <ItemContent>
-                        <ItemTitle>Avatar</ItemTitle>
-                        <ItemDescription>
-                          Edit your avatar or upload an image
-                        </ItemDescription>
-                      </ItemContent>
-                      <ItemMedia className="flex items-center gap-2">
-                        <Avatar className="size-7">
-                          <AvatarImage
-                            src={user.image ?? undefined}
-                            alt={user.name ?? "User"}
+      <ScrollArea className={"h-[calc(480px-80px+16px)] pr-4"}>
+        {activeTab === "profile" && (
+          <ItemGroup>
+            {/* Display name row */}
+            <Collapsible
+              open={openRow === "displayName"}
+              onOpenChange={() => toggleRow("displayName")}
+            >
+              <CollapsibleTrigger
+                render={
+                  <Item
+                    render={
+                      <button type="button">
+                        <ItemContent>
+                          <ItemTitle>Display name</ItemTitle>
+                          <ItemDescription>
+                            Changing your display name won&apos;t change your
+                            username
+                          </ItemDescription>
+                        </ItemContent>
+                        <ItemMedia className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            {user.name}
+                          </span>
+                          <ChevronRight
+                            className={cn(
+                              "size-4 text-muted-foreground transition-transform group/item-hover:bg-secondary ",
+                              openRow === "displayName" && "rotate-90",
+                            )}
                           />
-                          <AvatarFallback>
-                            {user.name?.charAt(0).toUpperCase() ?? "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <ChevronRight
-                          className={cn(
-                            "size-4 text-muted-foreground transition-transform",
-                            openRow === "avatar" && "rotate-90",
-                          )}
-                        />
-                      </ItemMedia>
-                    </button>
-                  }
-                  className="cursor-pointer px-0"
-                ></Item>
-              }
-            ></CollapsibleTrigger>
+                        </ItemMedia>
+                      </button>
+                    }
+                    className="cursor-pointer px-0"
+                  ></Item>
+                }
+              ></CollapsibleTrigger>
 
-            <CollapsibleContent>
-              <div className=" pb-4">
-                <AvatarForm />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </ItemGroup>
-      )}
+              <CollapsibleContent>
+                <div className=" pb-4">
+                  <DisplayNameForm
+                    defaultValue={user.name ?? ""}
+                    onDone={() => setOpenRow(null)}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-      {activeTab === "email" && <EmailSection />}
-      {activeTab === "linked-accounts" && <LinkedAccountsSection />}
+            {/* Avatar row */}
+            <Collapsible
+              open={openRow === "avatar"}
+              onOpenChange={() => toggleRow("avatar")}
+            >
+              <CollapsibleTrigger
+                render={
+                  <Item
+                    render={
+                      <button type="button">
+                        <ItemContent>
+                          <ItemTitle>Avatar</ItemTitle>
+                          <ItemDescription>
+                            Edit your avatar or upload an image
+                          </ItemDescription>
+                        </ItemContent>
+                        <ItemMedia className="flex items-center gap-2">
+                          <Avatar className="size-7">
+                            <AvatarImage
+                              src={user.image ?? undefined}
+                              alt={user.name ?? "User"}
+                            />
+                            <AvatarFallback>
+                              {user.name?.charAt(0).toUpperCase() ?? "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <ChevronRight
+                            className={cn(
+                              "size-4 text-muted-foreground transition-transform",
+                              openRow === "avatar" && "rotate-90",
+                            )}
+                          />
+                        </ItemMedia>
+                      </button>
+                    }
+                    className="cursor-pointer px-0"
+                  ></Item>
+                }
+              ></CollapsibleTrigger>
+
+              <CollapsibleContent>
+                <div className=" pb-4">
+                  <AvatarForm />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </ItemGroup>
+        )}
+
+        {activeTab === "email" && <EmailSection />}
+        {activeTab === "linked-accounts" && <LinkedAccountsSection />}
+      </ScrollArea>
     </div>
   );
 }

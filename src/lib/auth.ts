@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { admin as adminPlugin } from "better-auth/plugins";
+import { admin as adminPlugin, twoFactor } from "better-auth/plugins";
 import { lastLoginMethod } from "better-auth/plugins";
 import { after } from "next/server"; // ← Next.js 15+ built-in
 
@@ -18,6 +18,7 @@ import { passkey } from "@better-auth/passkey";
 import { magicLink } from "better-auth/plugins";
 
 export const auth = betterAuth({
+  appName: "Maintinsight",
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -125,5 +126,6 @@ export const auth = betterAuth({
         );
       },
     }),
+    twoFactor(),
   ],
 });

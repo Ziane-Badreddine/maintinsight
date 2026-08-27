@@ -34,7 +34,7 @@ export function SetPasswordForm({ email, onDone }: SetPasswordFormProps) {
   }
 
   return (
-    <form action={formAction} className="space-y-3">
+    <form action={formAction} className="space-y-3  p-4 rounded  border">
       <p className="text-sm text-muted-foreground">
         You signed up with a social account and don&apos;t have a password yet.
         Set one below so you can also sign in with <strong>{email}</strong>.

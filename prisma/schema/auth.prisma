@@ -1,20 +1,22 @@
 model User {
-    id            String       @id
-    name          String
-    email         String
-    emailVerified Boolean      @default(false)
-    image         String?
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
-    role          String?
-    banned        Boolean?     @default(false)
-    banReason     String?
-    banExpires    DateTime?
-    sessions      Session[]
-    accounts      Account[]
-    passkeys      Passkey[]
-    inspections   Inspection[]
-    reports       Report[]
+    id               String       @id
+    name             String
+    email            String
+    emailVerified    Boolean      @default(false)
+    image            String?
+    createdAt        DateTime     @default(now())
+    updatedAt        DateTime     @updatedAt
+    role             String?
+    banned           Boolean?     @default(false)
+    banReason        String?
+    banExpires       DateTime?
+    twoFactorEnabled Boolean?
+    sessions         Session[]
+    accounts         Account[]
+    passkeys         Passkey[]
+    inspections      Inspection[]
+    reports          Report[]
+    twoFactors       TwoFactor[]
 
     @@unique([email])
     @@map("user")
@@ -86,4 +88,17 @@ model Passkey {
     @@index([userId])
     @@index([credentialID])
     @@map("passkey")
+}
+
+model TwoFactor {
+    id                      String    @id
+    user                    User      @relation(fields: [userId], references: [id])
+    userId                  String
+    secret                  String
+    backupCodes             String
+    verified                Boolean
+    failedVerificationCount Int
+    lockedUntil             DateTime? @db.Timestamptz(3)
+
+    @@map("twoFactor")
 }

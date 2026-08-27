@@ -7,6 +7,12 @@ import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 
 interface DisplayNameFormProps {
   defaultValue: string;
@@ -41,24 +47,26 @@ export function DisplayNameForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="space-y-1.5">
-        <Input
-          id="display-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          autoFocus
-          required
-        />
-      </div>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
+    <form onSubmit={handleSubmit} className="space-y-3  p-4 rounded  border">
+      <FieldGroup>
+        <Field data-invalid={error}>
+          <FieldLabel htmlFor="display-name">New name</FieldLabel>
+          <Input
+            id="display-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+            required
+          />
+          <FieldError errors={[{ message: error! }]} />
+        </Field>
+      </FieldGroup>
 
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={onDone}>
+        <Button type="button" variant="outline" onClick={onDone}>
           Cancel
         </Button>
-        <Button type="submit" size="sm" disabled={isPending}>
+        <Button type="submit" disabled={isPending}>
           {isPending && <Loader2 className="mr-1.5 size-3.5 animate-spin" />}
           Save
         </Button>

@@ -69,7 +69,10 @@ export function ChangePasswordForm({ onDone }: ChangePasswordFormProps) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-3  p-4 rounded  border"
+    >
       <FieldGroup>
         <Controller
           name="currentPassword"

@@ -70,7 +70,7 @@ export function ChangeEmailForm({
 
   if (sentTo) {
     return (
-      <div className="flex items-start gap-3 rounded-lg border p-4">
+      <div className="flex items-start gap-3 rounded border p-4">
         <MailCheck className="mt-0.5 size-4 shrink-0 text-primary" />
         <div className="space-y-2">
           <p className="text-sm">
