@@ -17,13 +17,7 @@ import Link from "next/link";
 import { Route } from "next";
 
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Eye,
-  EyeOff,
-  Fingerprint,
-  GalleryVerticalEnd,
-  MailboxIcon,
-} from "lucide-react";
+import { Eye, EyeOff, Fingerprint, MailboxIcon } from "lucide-react";
 import { useLogin } from "../hooks/use-login";
 import { Controller } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
@@ -39,6 +33,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import Logo from "@/assets/logo.svg";
 
 export function LoginForm({
   className,
@@ -120,9 +115,9 @@ export function LoginForm({
             className="flex flex-col items-center gap-2 font-medium"
           >
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Logo className="size-8" title="maintinsight" />
             </div>
-            <span className="sr-only">Acme Inc.</span>
+            <span className="sr-only">Maintinsight.</span>
           </Link>
           <h1 className="text-xl font-bold">Welcome to Maintinsight.</h1>
           <FieldDescription>

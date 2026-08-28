@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 import { Spinner } from "@/components/ui/spinner";
-import { GalleryVerticalEnd } from "lucide-react";
+import Logo from "@/assets/logo.svg";
 import { useRegister } from "../hooks/use-register";
 import { Controller } from "react-hook-form";
 
@@ -36,7 +36,7 @@ export function RegisterForm({
             className="flex flex-col items-center gap-2 font-medium"
           >
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Logo className="size-8" title="maintinsight" />
             </div>
             <span className="sr-only">Acme Inc.</span>
           </Link>

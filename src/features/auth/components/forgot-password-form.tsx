@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 import { Spinner } from "@/components/ui/spinner";
-import { GalleryVerticalEnd } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -24,6 +23,7 @@ import {
   ForgotPasswordSchema,
 } from "../schemas/forgot-password-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Logo from "@/assets/logo.svg";
 
 export function ForgotPasswordFrom({
   className,
@@ -72,7 +72,7 @@ export function ForgotPasswordFrom({
             className="flex flex-col items-center gap-2 font-medium"
           >
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Logo className="size-8" title="maintinsight" />
             </div>
             <span className="sr-only">Acme Inc.</span>
           </Link>

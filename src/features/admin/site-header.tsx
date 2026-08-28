@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 
 import type { Route } from "next";
 import UserAvatar from "@/components/common/user-avatar";
-import { Logo } from "../dashboard/components/logo";
+import Logo from "@/assets/logo.svg";
 
 const SEGMENT_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -67,7 +67,9 @@ export function SiteHeader() {
       <div className="flex h-(--header-height) w-full items-center justify-between gap-2 px-4">
         {/* Left — logo + separator + breadcrumb */}
         <div className="flex items-center gap-2 md:gap-4">
-          <Logo />
+          <Link href="/dashboard" className="flex items-center gap-2 shrink-0 ">
+            <Logo className="size-6" title="maintinsight" />
+          </Link>
 
           <Slash className="-rotate-25 size-4 text-muted-foreground" />
 

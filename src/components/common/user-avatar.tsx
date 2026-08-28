@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Laptop, LogOut, Moon, Settings, Sun, User } from "lucide-react";
+import { LogOut, Settings, ShieldUser, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,15 +15,13 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 import { SettingsDialog } from "@/features/auth/components/settings-dialog";
 import { Spinner } from "../ui/spinner";
 import { useHotkey } from "@tanstack/react-hotkeys";
+import Link from "next/link";
 
 export default function UserAvatar() {
   const { data: session, isPending } = authClient.useSession();
@@ -99,29 +97,16 @@ export default function UserAvatar() {
               <span>Settings</span>
             </DropdownMenuItem>
 
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Moon className="size-4" />
-                <span>Theme</span>
-              </DropdownMenuSubTrigger>
-
-              <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  <Sun className="size-4" />
-                  <span>Light</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  <Moon className="size-4" />
-                  <span>Dark</span>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  <Laptop className="size-4" />
-                  <span>System</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
+            {session.user.role === "admin" && (
+              <DropdownMenuItem
+                render={
+                  <Link href={"/admin"}>
+                    <ShieldUser className="size-4" />
+                    <span>Admin</span>
+                  </Link>
+                }
+              ></DropdownMenuItem>
+            )}
 
             <DropdownMenuSeparator />
 

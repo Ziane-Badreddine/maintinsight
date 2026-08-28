@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserAvatar from "@/components/common/user-avatar";
 import { RefreshButton } from "@/features/dashboard/components/refresh-button";
 import { CitySwitcherHeader } from "@/features/city/components/city-switcher";
-import { Logo } from "@/features/dashboard/components/logo";
+import Logo from "@/assets/logo.svg";
 import {
   Carousel,
   CarouselContent,
@@ -132,7 +132,12 @@ export default function HeaderClient({ cities, session }: HeaderClientProps) {
     <>
       <header className="flex h-[64.8px] border-b shrink-0 items-center justify-between gap-2 z-10 w-full px-4">
         <div className="flex items-center gap-2 min-w-0">
-          <Logo />
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 shrink-0 mr-2"
+          >
+            <Logo className="size-6" title="maintinsight" />
+          </Link>
           {cityId && (
             <>
               <Slash className="size-4 -rotate-20 text-border" />

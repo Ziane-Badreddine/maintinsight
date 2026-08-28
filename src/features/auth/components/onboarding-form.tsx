@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Eye, EyeOff, GalleryVerticalEnd } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
 
@@ -30,6 +30,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { useState } from "react";
+import Logo from "@/assets/logo.svg";
 
 const onboardingSchema = z
   .object({
@@ -105,7 +106,7 @@ export function OnboardingForm({
             className="flex flex-col items-center gap-2 font-medium"
           >
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Logo className="size-8" title="maintinsight" />
             </div>
 
             <span className="sr-only">MaintInsight</span>

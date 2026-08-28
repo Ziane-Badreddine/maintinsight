@@ -15,7 +15,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import Link from "next/link";
-import { GalleryVerticalEnd } from "lucide-react";
+import Logo from "@/assets/logo.svg";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -72,7 +72,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             className="flex flex-col items-center gap-2 font-medium"
           >
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Logo className="size-8" title="maintinsight" />
             </div>
             <span className="sr-only">Acme Inc.</span>
           </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Lock, Settings, User } from "lucide-react";
+import { Lock, Settings2, User } from "lucide-react";
 
 import {
   Dialog,
@@ -30,7 +30,7 @@ type SettingsSection = "profile" | "security" | "preferences";
 const NAV: { key: SettingsSection; name: string; icon: React.ElementType }[] = [
   { key: "profile", name: "Profile details", icon: User },
   { key: "security", name: "Security", icon: Lock },
-  { key: "preferences", name: "Preferences", icon: Settings },
+  { key: "preferences", name: "Preferences", icon: Settings2 },
 ];
 
 interface SettingsDialogProps {

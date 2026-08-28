@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { parseAsString, useQueryState } from "nuqs";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { GalleryVerticalEnd, KeyRound, ShieldCheck } from "lucide-react";
+import { KeyRound, ShieldCheck } from "lucide-react";
+import Logo from "@/assets/logo.svg";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
@@ -56,7 +57,7 @@ export function TwoFactorForm({
             className="flex flex-col items-center gap-2 font-medium"
           >
             <div className="flex size-8 items-center justify-center rounded-md">
-              <GalleryVerticalEnd className="size-6" />
+              <Logo className="size-8" title="maintinsight" />
             </div>
             <span className="sr-only">Acme Inc.</span>
           </Link>
