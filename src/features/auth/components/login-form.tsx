@@ -17,16 +17,28 @@ import Link from "next/link";
 import { Route } from "next";
 
 import { Spinner } from "@/components/ui/spinner";
-import { Fingerprint, GalleryVerticalEnd, MailboxIcon } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Fingerprint,
+  GalleryVerticalEnd,
+  MailboxIcon,
+} from "lucide-react";
 import { useLogin } from "../hooks/use-login";
 import { Controller } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { parseAsString, useQueryState } from "nuqs";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 export function LoginForm({
   className,
@@ -35,6 +47,7 @@ export function LoginForm({
   const { form, onSubmit, isSubmitting } = useLogin();
   const [redirect] = useQueryState("redirect", parseAsString);
   const router = useRouter();
+  const [isPasswordHidden, setIsPasswordHidden] = useState(false);
 
   const { isPending, mutate } = useMutation({
     mutationFn: async (options?: { autoFill?: boolean }) => {
@@ -151,15 +164,27 @@ export function LoginForm({
                   Forgot your password?
                 </Link>
               </div>
-              <Input
-                {...field}
-                id="password"
-                aria-invalid={fieldState.invalid}
-                type="password"
-                autoComplete="current-password webauthn"
-                className="bg-background"
-                placeholder="password"
-              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id="password"
+                  aria-invalid={fieldState.invalid}
+                  type={isPasswordHidden ? "password" : "text"}
+                  autoComplete="current-password webauthn"
+                  className="bg-background"
+                  placeholder="password"
+                />
+                <InputGroupAddon align={"inline-end"}>
+                  <InputGroupButton
+                    size="icon-xs"
+                    onClick={() => {
+                      setIsPasswordHidden(!isPasswordHidden);
+                    }}
+                  >
+                    {isPasswordHidden ? <Eye /> : <EyeOff />}
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

@@ -17,6 +17,8 @@ import {
   Loader2Icon,
   CalendarDaysIcon,
   ListIcon,
+  EyeIcon,
+  ExternalLinkIcon,
 } from "lucide-react";
 
 import {
@@ -50,6 +52,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { deleteReportAction } from "../actions/generate-report-action";
@@ -214,13 +223,93 @@ function groupByMonth(reports: ReportRow[]) {
   return groups;
 }
 
+// Builds a stable, human-readable filename for the downloaded PDF, e.g.
+// "report-2026-08-28.pdf". Falls back to the report id if the date can't
+// be parsed for some reason.
+function reportFileName(report: ReportRow) {
+  const parsed = new Date(report.date);
+  const stamp = Number.isNaN(parsed.getTime())
+    ? report.id
+    : format(parsed, "yyyy-MM-dd");
+  return `report-${stamp}.pdf`;
+}
+
+/**
+ * Note on "PDFViewer": @react-pdf/renderer's own <PDFViewer> only knows how
+ * to render a <Document> tree built from React components (like
+ * ReportDocument + live data) — it has no `src` prop, so it can't preview a
+ * PDF that's already been generated and stored as a blob URL. Once a report
+ * is generated we only have the resulting file, not the original data, so
+ * previewing it here uses the browser's native PDF renderer inside an
+ * <iframe>, which is the practical equivalent for an already-built file.
+ */
+function ReportPreviewDialog({
+  report,
+  onOpenChange,
+}: {
+  report: ReportRow | null;
+  onOpenChange: (open: boolean) => void;
+}) {
+  return (
+    <Dialog open={Boolean(report)} onOpenChange={onOpenChange}>
+      <DialogContent className="flex h-[85vh] max-w-7xl! flex-col gap-0 overflow-hidden ">
+        <DialogHeader className="border-b px-6 py-4">
+          <DialogTitle>
+            {report
+              ? format(new Date(report.date), "EEEE d MMMM yyyy", {
+                  locale: enUS,
+                })
+              : "Report preview"}
+          </DialogTitle>
+          <DialogDescription className="flex items-center justify-between gap-2">
+            <span>Daily report preview</span>
+            {report?.blobUrl && (
+              <a
+                href={report.blobUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <ExternalLinkIcon className="size-3.5" />
+                Open in new tab
+              </a>
+            )}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="min-h-0 flex-1 bg-muted">
+          {report?.blobUrl ? (
+            <iframe
+              key={report.id}
+              src={`${report.blobUrl}#toolbar=1`}
+              title={`Report preview — ${report.date}`}
+              className="h-full w-full border-0"
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+              <FileTextIcon className="size-8" />
+              No file available for this report yet.
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ReportCard({
   report,
   canDelete,
+  isDownloading,
+  onView,
+  onDownload,
   onRequestDelete,
 }: {
   report: ReportRow;
   canDelete: boolean;
+  isDownloading: boolean;
+  onView: (report: ReportRow) => void;
+  onDownload: (report: ReportRow) => void;
   onRequestDelete: (report: ReportRow) => void;
 }) {
   return (
@@ -258,17 +347,31 @@ function ReportCard({
 
       <CardFooter className="gap-2 pb-4">
         {report.blobUrl && (
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            render={
-              <a href={report.blobUrl} target="_blank" rel="noreferrer" />
-            }
-          >
-            <DownloadIcon className="size-4" />
-            Download
-          </Button>
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => onView(report)}
+            >
+              <EyeIcon className="size-4" />
+              View
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label="Download report"
+              disabled={isDownloading}
+              onClick={() => onDownload(report)}
+            >
+              {isDownloading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <DownloadIcon className="size-4" />
+              )}
+            </Button>
+          </>
         )}
         {canDelete && (
           <Button
@@ -299,6 +402,8 @@ export function ReportsGrid({
   const [statusFilter, setStatusFilter] = useState<StatusValue>("all");
   const [groupMode, setGroupMode] = useState<GroupValue>("month");
   const [deleteTarget, setDeleteTarget] = useState<ReportRow | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<ReportRow | null>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [isDeleting, startDelete] = useTransition();
 
   const filtered = useMemo(
@@ -338,6 +443,41 @@ export function ReportsGrid({
       setDeleteTarget(null);
       router.refresh();
     });
+  }
+
+  // A plain `<a href={blobUrl} download>` doesn't reliably force a download:
+  // the `download` attribute is ignored by browsers on cross-origin URLs
+  // (which is what blob storage URLs are), so it just opens the PDF in a
+  // new tab instead of saving it. Fetching the file ourselves and saving it
+  // as a local object URL sidesteps that and gives it a clean filename.
+  async function handleDownload(report: ReportRow) {
+    if (!report.blobUrl) return;
+
+    setDownloadingId(report.id);
+    try {
+      const response = await fetch(report.blobUrl);
+      if (!response.ok) throw new Error(`Request failed (${response.status})`);
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = reportFileName(report);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      toast.add({
+        type: "error",
+        title: "Couldn't download directly",
+        description: "Opening the file in a new tab instead.",
+      });
+      window.open(report.blobUrl, "_blank", "noreferrer");
+    } finally {
+      setDownloadingId(null);
+    }
   }
 
   return (
@@ -386,6 +526,9 @@ export function ReportsGrid({
                     key={report.id}
                     report={report}
                     canDelete={canDelete}
+                    isDownloading={downloadingId === report.id}
+                    onView={setPreviewTarget}
+                    onDownload={handleDownload}
                     onRequestDelete={setDeleteTarget}
                   />
                 ))}
@@ -394,6 +537,13 @@ export function ReportsGrid({
           ))}
         </div>
       )}
+
+      <ReportPreviewDialog
+        report={previewTarget}
+        onOpenChange={(open) => {
+          if (!open) setPreviewTarget(null);
+        }}
+      />
 
       <AlertDialog
         open={Boolean(deleteTarget)}

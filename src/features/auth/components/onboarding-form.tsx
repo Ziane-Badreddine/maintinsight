@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { GalleryVerticalEnd } from "lucide-react";
+import { Eye, EyeOff, GalleryVerticalEnd } from "lucide-react";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
 
@@ -23,6 +23,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 
 import { completeOnboarding } from "../actions/complete-onboarding";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { useState } from "react";
 
 const onboardingSchema = z
   .object({
@@ -53,6 +60,7 @@ export function OnboardingForm({
       confirmPassword: "",
     },
   });
+  const [isPasswordHidden, setIsPasswordHidden] = useState(false);
 
   const isSubmitting = form.formState.isSubmitting;
 
@@ -141,15 +149,27 @@ export function OnboardingForm({
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="password">Password</FieldLabel>
 
-              <Input
-                {...field}
-                id="password"
-                type="password"
-                placeholder="Create a password"
-                autoComplete="new-password"
-                aria-invalid={fieldState.invalid}
-                className="bg-background"
-              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id="password"
+                  aria-invalid={fieldState.invalid}
+                  type={isPasswordHidden ? "password" : "text"}
+                  autoComplete="current-password webauthn"
+                  className="bg-background"
+                  placeholder="password"
+                />
+                <InputGroupAddon align={"inline-end"}>
+                  <InputGroupButton
+                    size="icon-xs"
+                    onClick={() => {
+                      setIsPasswordHidden(!isPasswordHidden);
+                    }}
+                  >
+                    {isPasswordHidden ? <Eye /> : <EyeOff />}
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
 
               <FieldDescription>Use at least 8 characters.</FieldDescription>
 

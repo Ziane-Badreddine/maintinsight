@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, Eye, EyeOff } from "lucide-react";
 import QRCode from "react-qr-code";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 
@@ -38,6 +38,12 @@ import {
   useEnableTwoFactor,
   useVerifyTotp,
 } from "../../../hooks/use-two-factor";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 
 const passwordSchema = z.object({
   password: z.string().min(1, "Password is required"),
@@ -70,6 +76,7 @@ export function EnableTwoFactorDialog({
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
+  const [isPasswordHidden, setIsPasswordHidden] = useState(false);
 
   const enableTwoFactor = useEnableTwoFactor();
   const verifyTotp = useVerifyTotp();
@@ -193,14 +200,27 @@ export function EnableTwoFactorDialog({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="password">Password</FieldLabel>
-                      <Input
-                        {...field}
-                        id="password"
-                        type="password"
-                        autoFocus
-                        aria-invalid={fieldState.invalid}
-                        autoComplete="current-password"
-                      />
+                      <InputGroup>
+                        <InputGroupInput
+                          {...field}
+                          id="password"
+                          aria-invalid={fieldState.invalid}
+                          type={isPasswordHidden ? "password" : "text"}
+                          autoComplete="current-password webauthn"
+                          className="bg-background"
+                          placeholder="password"
+                        />
+                        <InputGroupAddon align={"inline-end"}>
+                          <InputGroupButton
+                            size="icon-xs"
+                            onClick={() => {
+                              setIsPasswordHidden(!isPasswordHidden);
+                            }}
+                          >
+                            {isPasswordHidden ? <Eye /> : <EyeOff />}
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
                       )}
