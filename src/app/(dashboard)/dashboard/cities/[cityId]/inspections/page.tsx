@@ -1,4 +1,11 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Inspections",
+  description: "Review inspection history and equipment status.",
+  robots: { index: false, follow: false },
+};
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { loadInspectionHistorySearchParams } from "@/features/inspection/utils/inspection-history";

@@ -1,5 +1,12 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reports",
+  description: "Generate and review maintenance reports.",
+  robots: { index: false, follow: false },
+};
+import { forbidden } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { hasPermission } from "@/features/dashboard/lib/permissions";
 import {
@@ -12,7 +19,7 @@ export default async function CityReportsPage({
 }: PageProps<"/dashboard/cities/[cityId]">) {
   const session = await getSession();
   if (!hasPermission(session?.user ?? null, { report: ["read"] })) {
-    notFound();
+    forbidden();
   }
 
   return (

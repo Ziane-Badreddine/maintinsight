@@ -1,4 +1,11 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sessions",
+  description: "View and revoke active user sessions.",
+  robots: { index: false, follow: false },
+};
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import type { SearchParams } from "nuqs/server";

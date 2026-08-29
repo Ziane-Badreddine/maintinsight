@@ -1,4 +1,11 @@
 import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Check your email",
+  description: "Instructions to reset your MaintInsight password.",
+  robots: { index: false, follow: false },
+};
 import { CheckCircle2Icon, ChevronLeft, MailCheck } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertTitle } from "@/components/ui/alert";

@@ -1,4 +1,10 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login",
+  description: "Access your MaintInsight dashboard.",
+  robots: { index: false, follow: false },
+};
 
 import { LoginForm } from "@/features/auth/components/login-form";
 

@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Welcome",
+  description: "Complete your MaintInsight profile.",
+  robots: { index: false, follow: false },
+};
+
 import { OnboardingForm } from "@/features/auth/components/onboarding-form";
 
 export default function OnboardingPage() {

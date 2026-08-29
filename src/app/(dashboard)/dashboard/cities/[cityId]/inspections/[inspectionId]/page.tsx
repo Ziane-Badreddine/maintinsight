@@ -1,5 +1,6 @@
 // app/(dashboard)/dashboard/cities/[cityId]/inspections/[inspectionId]/page.tsx
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -15,6 +16,23 @@ import { InspectionHeaderCard } from "@/features/inspection/components/inspectio
 import { InspectionEquipmentCard } from "@/features/inspection/components/inspection-equipment-card";
 import { InspectionEquipmentSummaryCard } from "@/features/inspection/components/inspection-equipment-summary-card";
 import { InspectionActionsToolbar } from "@/features/inspection/components/inspection-actions-toolbar";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/dashboard/cities/[cityId]/inspections/[inspectionId]">): Promise<Metadata> {
+  const { inspectionId } = await params;
+  const inspection = await getInspectionDetail(Number(inspectionId));
+
+  if (!inspection) notFound();
+
+  const date = inspection.inspectionDate.toLocaleDateString("en-US");
+  const reference = inspection.equipments[0]?.equipment.code ?? inspection.equipments[0]?.equipment.name ?? "Inspection";
+
+  return {
+    title: `Inspection ${date} | ${reference}`,
+    description: `Results and details of the inspection on ${date}.`,
+  };
+}
 
 function ToolbarSkeleton() {
   return <Skeleton className="h-9 w-full rounded-lg" />;

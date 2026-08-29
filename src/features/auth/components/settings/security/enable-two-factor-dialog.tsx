@@ -76,7 +76,7 @@ export function EnableTwoFactorDialog({
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [copiedSecret, setCopiedSecret] = useState(false);
   const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
-  const [isPasswordHidden, setIsPasswordHidden] = useState(false);
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
 
   const enableTwoFactor = useEnableTwoFactor();
   const verifyTotp = useVerifyTotp();

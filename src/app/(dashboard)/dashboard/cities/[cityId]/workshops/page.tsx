@@ -1,6 +1,13 @@
 import { WorkshopsOverviewLoader } from "@/features/workshop/components/workshops-overview-loader";
 import { WorkshopsOverviewSkeleton } from "@/features/workshop/components/workshops-overview-skeleton";
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Workshops",
+  description: "Browse workshops and maintenance activity.",
+  robots: { index: false, follow: false },
+};
 
 export default async function WorkshopsPage({
   params,

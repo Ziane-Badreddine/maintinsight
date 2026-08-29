@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { loadInspectionHistorySearchParams } from "@/features/inspection/utils/inspection-history";
@@ -22,6 +23,20 @@ function HeaderSkeleton() {
 
 function ChartSkeleton() {
   return <Skeleton className="h-95 w-full rounded-xl" />;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/dashboard/cities/[cityId]/equipments/[equipmentId]">): Promise<Metadata> {
+  const { equipmentId } = await params;
+  const equipment = await getEquipmentHeaderInfo(Number(equipmentId));
+
+  if (!equipment) notFound();
+
+  return {
+    title: equipment.code ?? equipment.name,
+    description: `History and inspections for ${equipment.code ?? equipment.name}.`,
+  };
 }
 
 function TableSkeleton() {

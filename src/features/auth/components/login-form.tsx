@@ -42,7 +42,7 @@ export function LoginForm({
   const { form, onSubmit, isSubmitting } = useLogin();
   const [redirect] = useQueryState("redirect", parseAsString);
   const router = useRouter();
-  const [isPasswordHidden, setIsPasswordHidden] = useState(false);
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
 
   const { isPending, mutate } = useMutation({
     mutationFn: async (options?: { autoFill?: boolean }) => {

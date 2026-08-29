@@ -1,4 +1,11 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Monitor maintenance intelligence across your cities.",
+  robots: { index: false, follow: false },
+};
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { NewCityDialog } from "@/features/city/components/new-city-dialog";

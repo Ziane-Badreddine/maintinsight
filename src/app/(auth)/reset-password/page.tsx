@@ -1,4 +1,11 @@
 import { Alert, AlertTitle } from "@/components/ui/alert";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reset password",
+  description: "Set a new MaintInsight account password.",
+  robots: { index: false, follow: false },
+};
 import { Button } from "@/components/ui/button";
 import ResetPasswordForm from "@/features/auth/components/reset-password-form";
 import { AlertCircle, ChevronLeft, KeyRound } from "lucide-react";
