@@ -61,7 +61,7 @@ export function OnboardingForm({
       confirmPassword: "",
     },
   });
-  const [isPasswordHidden, setIsPasswordHidden] = useState(false);
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
 
   const isSubmitting = form.formState.isSubmitting;
 

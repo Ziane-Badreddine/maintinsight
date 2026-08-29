@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertCircleIcon } from "lucide-react";
+import { ShieldAlertIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,32 +11,29 @@ import {
 } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Page not found",
+  title: "Access denied",
   robots: { index: false, follow: false },
 };
 
-export default function NotFound() {
+export default function Forbidden() {
   return (
     <main className="flex min-h-svh items-center justify-center p-6">
       <Card className="w-full max-w-md text-center bg-transparent outline-none border-0 ring-0">
         <CardHeader>
-          <div className="flex items-center mb-4">
-            <AlertCircleIcon
-              className="size-10 text-muted-foreground mx-auto"
+          <div className="flex items-center mb-4 justify-center">
+            <ShieldAlertIcon
+              className="size-10 text-muted-foreground"
               aria-hidden="true"
             />
           </div>
-          <CardTitle>404 - Page not found</CardTitle>
+          <CardTitle>403 - Access denied</CardTitle>
           <CardDescription>
-            The resource you are looking for does not exist or has been removed.
+            You do not have permission to access this resource.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+        <CardContent>
           <Link href="/dashboard">
             <Button>Back to dashboard</Button>
-          </Link>
-          <Link href="/">
-            <Button variant={"outline"}>Home</Button>
           </Link>
         </CardContent>
       </Card>

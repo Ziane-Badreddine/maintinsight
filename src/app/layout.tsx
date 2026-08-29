@@ -24,12 +24,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://maintinsight.vercel.app"),
+  metadataBase: new URL("https://maintinsight.zianebadreddine.me"),
   title: {
     default: "MaintInsight",
-    template: "%s | MaintInsight",
+    template: "%s - MaintInsight",
   },
-  description: "Maintenance intelligence for cities, plants, workshops, and equipment.",
+  description:
+    "Maintenance intelligence for cities, plants, workshops, and equipment.",
   robots: {
     index: false,
     follow: false,
@@ -86,7 +87,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <QueryProvider>
               <ThemeProvider
                 attribute="class"
-                defaultTheme="dark"
+                defaultTheme="light"
                 enableSystem
                 disableTransitionOnChange
               >

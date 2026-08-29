@@ -1,11 +1,9 @@
-import { cache, Suspense } from "react";
-import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 
 import { MeasurementType } from "../../../../../../prisma/generated/prisma/enums";
 
 import {
-  getCityOverview,
   getCityStatusHistory,
   getPlantsOverview,
   getWorkshopsOverview,
@@ -46,28 +44,11 @@ import { loadWorkshopsOverviewSearchParams } from "@/features/global/search-para
 import { getCityAlarmsOverview } from "@/features/global/server/city-alarms-overview";
 import { loadAlarmsOverviewSearchParams } from "@/features/global/search-params/alarms-overview";
 import { AlarmsOverviewTable } from "@/features/global/components/alarms-overview-table";
+import { getCityOverviewCached } from "./layout";
 
 /* -------------------------------------------------------------------------- */
 /*                                  CACHING                                   */
 /* -------------------------------------------------------------------------- */
-
-const getCityOverviewCached = cache(async (cityId: number) =>
-  getCityOverview(cityId),
-);
-
-export async function generateMetadata({
-  params,
-}: PageProps<"/dashboard/cities/[cityId]">): Promise<Metadata> {
-  const { cityId } = await params;
-  const data = await getCityOverviewCached(Number(cityId));
-
-  if (!data) notFound();
-
-  return {
-    title: data.city.name,
-    description: `Overview of ${data.city.name}: equipment, inspections, and alerts.`,
-  };
-}
 
 /* -------------------------------------------------------------------------- */
 /*                                  SKELETONS                                 */
