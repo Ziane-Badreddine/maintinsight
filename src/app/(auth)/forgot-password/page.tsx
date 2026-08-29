@@ -1,5 +1,12 @@
 import { ForgotPasswordFrom } from "@/features/auth/components/forgot-password-form";
 import React from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Forgot password",
+  description: "Request a secure MaintInsight password reset link.",
+  robots: { index: false, follow: false },
+};
 
 export default function ForgotPasswordPage() {
   return (

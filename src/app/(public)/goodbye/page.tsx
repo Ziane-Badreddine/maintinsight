@@ -1,5 +1,12 @@
 // src/app/(public)/goodbye/page.tsx
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Account deleted",
+  description: "Your MaintInsight account has been permanently deleted.",
+  robots: { index: false, follow: false },
+};
 import { CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";

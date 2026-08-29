@@ -1,4 +1,10 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Two-factor authentication",
+  description: "Verify your MaintInsight account.",
+  robots: { index: false, follow: false },
+};
 
 import { TwoFactorForm } from "@/features/auth/components/two-factor-form";
 

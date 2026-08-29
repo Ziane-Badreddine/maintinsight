@@ -1,4 +1,11 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Reports",
+  description: "Generate and review maintenance reports.",
+  robots: { index: false, follow: false },
+};
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { hasPermission } from "@/features/dashboard/lib/permissions";

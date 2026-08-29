@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Plants",
+  description: "Monitor equipment health across plants.",
+  robots: { index: false, follow: false },
+};
+
 import { PlantsOverviewLoader } from "@/features/plant/components/plants-overview-loader";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";

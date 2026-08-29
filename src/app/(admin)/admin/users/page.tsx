@@ -1,4 +1,11 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Users",
+  description: "Manage MaintInsight users.",
+  robots: { index: false, follow: false },
+};
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import type { SearchParams } from "nuqs/server";
